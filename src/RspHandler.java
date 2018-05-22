@@ -9,6 +9,9 @@ public class RspHandler {
     }
 
     public synchronized void waitForResponse() {
+        /**
+         * dead loop wait for the data to return
+         */
         while(this.rsp == null) {
             try {
                 this.wait();

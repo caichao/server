@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Random;
 
@@ -92,7 +93,7 @@ public class Main {
         ParticleFilter particleFilter = new ParticleFilter(5000);
         particleFilter.setSubject(serverThread); */
 
-        try {
+        /*try {
             NioClient client = new NioClient(InetAddress.getByName("192.168.1.101"), 33333);
             Thread t = new Thread(client);
             t.setDaemon(true);
@@ -102,8 +103,17 @@ public class Main {
             handler.waitForResponse();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-
+        }*/
+        /*try {
+            EchoWorker worker = new EchoWorker();
+            new Thread(worker).start();
+            new Thread(new NioServer(null, 33333, worker)).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+        BioServer bioServer = new BioServer(33333);
+        new Thread(bioServer).start();
+        log("server started succussfully");
     }
 
     public static void log(String s){

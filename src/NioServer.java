@@ -145,6 +145,8 @@ public class NioServer implements Runnable {
         }
 
         // Hand the data off to our worker thread
+        //*******************************************************************************************************88
+        // the worker is responsible for handling all the data logic
         this.worker.processData(this, socketChannel, this.readBuffer.array(), numRead);
     }
 
