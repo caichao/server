@@ -22,7 +22,7 @@ public class BioClient {
             //获取Socket的输出流，用来发送数据到服务端
             PrintStream out = new PrintStream(client.getOutputStream());
             out.println("Hello, server");
-            
+
         }catch (Exception e){
             e.printStackTrace();
         }

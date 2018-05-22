@@ -11,10 +11,13 @@ public class BioServer implements Runnable{
     private Socket client = null;
     private List messageQueue = null;
 
+    private BioProcessor bioProcessor = null;
+
     public BioServer(int port){
         this.port = port;
         clientThreadPoo = new ArrayList();
         messageQueue = new ArrayList();
+        //bioProcessor = new BioProcessor(messageQueue);
     }
 
     @Override
@@ -24,7 +27,7 @@ public class BioServer implements Runnable{
         }catch (Exception e){
             e.printStackTrace();
         }
-
+        new Thread(new BioProcessor(messageQueue)).start();
         while (true){
             try {
                 client = server.accept();
