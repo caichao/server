@@ -7,10 +7,12 @@ public class ParticleFilter extends Thread implements Observer{
     private int numberOfParticles = 2000;
 
     private Random random = null;
-    private float particles[][] = null;
-    private float weights[] = null;
+    private float particles[][] = null; // all the particles
+    private float weights[] = null; // weights for all the particles
+    private float intermediateWeights[] = null; // weights for the topParticleNumber
     private float x = 0;
     private float y = 0;
+    private int topParticleNumber = 100;
     private int numberOfValidParticles = numberOfParticles;
 
     private float c = 340;
@@ -30,6 +32,10 @@ public class ParticleFilter extends Thread implements Observer{
     public void setSubject(Subject subject){
         this.subject = subject;
         subject.addObserver(this);
+    }
+
+    public void setNumberOfParticles(int numberOfParticles){
+        this.numberOfParticles = numberOfParticles;
     }
 
     public void close(){
@@ -62,6 +68,7 @@ public class ParticleFilter extends Thread implements Observer{
         random = new Random();
         particles = new float[numberOfParticles][2];
         weights = new float[numberOfParticles];
+        intermediateWeights = new float[topParticleNumber];
     }
 
 
@@ -156,6 +163,32 @@ public class ParticleFilter extends Thread implements Observer{
         return availableNumberOfParticles;
     }
 
+    public void estimateIntermediate(){
+        float xx = 0;
+        float yy = 0;
+
+        float sum = 0.0f;
+
+        for(int i = 0; i < topParticleNumber; i++){
+            intermediateWeights[i] = weights[i];
+        }
+
+        // we should first normalize the weights
+        for(int i = 0; i < topParticleNumber; i++)
+            sum += intermediateWeights[i];
+        for(int i = 0; i < topParticleNumber; i++){
+            intermediateWeights[i] /= sum;
+        }
+        for(int i = 0; i < topParticleNumber; i++){
+            xx += intermediateWeights[i] * particles[i][0];
+            yy += intermediateWeights[i] * particles[i][1];
+        }
+        /*x = xx / numberOfParticles;
+        y =  yy / numberOfParticles; */
+        this.x = xx;
+        this.y = yy;
+    }
+
     /**
      * estimate the final location based on all the available particles and the corresponding weight
      */
@@ -178,8 +211,8 @@ public class ParticleFilter extends Thread implements Observer{
         }
         /*x = xx / numberOfParticles;
         y =  yy / numberOfParticles; */
-        x = xx;
-        y = yy;
+        this.x = xx;
+        this.y = yy;
     }
 
     /**
@@ -291,25 +324,78 @@ public class ParticleFilter extends Thread implements Observer{
         return index;
     }
 
+    private void debugTestCode(){
+        float groundTruthx = 1.0f;
+        float groundTruthy = 1.0f;
+
+        TDOAMeasurement one = new TDOAMeasurement();
+        one.anchorIDOne = 0;
+        one.anchorIDTwo = 2;
+        float d1 = (float) Math.sqrt(Math.pow(landmarks[one.anchorIDOne][0] - groundTruthx, 2) + Math.pow(landmarks[one.anchorIDOne][1] - groundTruthy, 2));
+        float d2 = (float) Math.sqrt(Math.pow(landmarks[one.anchorIDTwo][0] - groundTruthx, 2) + Math.pow(landmarks[one.anchorIDTwo][1] - groundTruthy, 2));
+
+        one.tdoa = (d1 - d2) / this.getC();
+
+        TDOAMeasurement two = new TDOAMeasurement();
+        two.anchorIDOne = 1;
+        two.anchorIDTwo = 3;
+        d1 = (float) Math.sqrt(Math.pow(landmarks[two.anchorIDOne][0] - groundTruthx, 2) + Math.pow(landmarks[two.anchorIDOne][1] - groundTruthy, 2));
+        d2 = (float) Math.sqrt(Math.pow(landmarks[two.anchorIDTwo][0] - groundTruthx, 2) + Math.pow(landmarks[two.anchorIDTwo][1] - groundTruthy, 2));
+
+        two.tdoa = (d1 - d2) / this.getC();
+
+        TDOAMeasurement tdoaMeasurement[] = new TDOAMeasurement[2];
+        tdoaMeasurement[0] = one;
+        tdoaMeasurement[1] = two;
+        this.update(tdoaMeasurement, this.getNumberOfParticles());
+        FileUtils.saveParticles(this.getParticles(), this.topK(this.getWeights(), 100), "top100");
+        int newNum = 0;
+        for(int i = 0; i < 5; i++){
+            int index[] = this.topK(this.getWeights(), 100);
+
+            newNum = this.resampleAndRegenerate(index, this.getNumberOfParticles()/(i+1), 0.5f/(i+1)/(i+1));
+            this.update(tdoaMeasurement, newNum);
+
+            //this.estimate(100);
+            this.estimateIntermediate();
+            //FileUtils.saveParticles(this.getParticles(), index,"loop"+i);
+
+        }
+        this.estimate(100);
+    }
+
     @Override
     public void run() {
         super.run();
 
         while(isParticleThreadAlive){
-            if(isTimeToPerformEstimation){
+            /*if(isTimeToPerformEstimation){
                 isTimeToPerformEstimation = false;
+            }*/
+            try{
+                Thread.sleep(10);
+                if(messageQueue.size() >= 2){
+                    // TODO here: run the particle filter iteration here
+                    System.out.println("Receive enough information for particle filter iteration");
+
+                    synchronized (this){
+                        messageQueue.remove(0);
+                        messageQueue.remove(0);
+                    }
+                    debugTestCode();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
     }
 
-    Map map = new HashMap();
-    JSONObject jsonObject = null;
-    List<Integer> identityList = new ArrayList<>();
+    List messageQueue = new ArrayList();
     @Override
     public void update(String msg){
         // get the tdoa message information from the clients
         // this is the Jsonobject, so we should first decode that
-        try {
+        /*try {
             jsonObject = new JSONObject(msg);
             int identity = jsonObject.getInt(FlagVar.identityStr);
             map.put(identity, jsonObject.getInt(FlagVar.tdoaStr));
@@ -324,7 +410,11 @@ public class ParticleFilter extends Thread implements Observer{
             }
         }catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
 
+        synchronized (this){
+            messageQueue.add(msg);
+        }
+        System.out.println("I am in the particle filter = "+msg);
     }
 }

@@ -5,8 +5,11 @@ import java.util.Random;
 public class Main {
 
     public static void main(String args[]){
-        //ParticleFilter particleFilter = new ParticleFilter(5000);
+        ParticleFilter particleFilter = new ParticleFilter(5000);
+        new Thread(particleFilter).start();
 
+        MainFrame mainFrame = new MainFrame(particleFilter);
+        new Thread(mainFrame).start();
         /*System.out.println("This is a java test!");
 
         System.out.println("guassian test = " + particleFilter.guassian(0.5f));
@@ -18,14 +21,14 @@ public class Main {
 
 
         // the first step is to randomly generate new particles
-        /*
+
         particleFilter.generateUniformParticles(6.8f, 3.2f);
-        FileUtils.saveParticles(particleFilter.getParticles(), 2000, "InitialParticles");
-        log("particles save ok ");
+        //FileUtils.saveParticles(particleFilter.getParticles(), 2000, "InitialParticles");
+        //log("particles save ok ");
 
         // the second step is to renew the weight based on the tdoa measurements
         // simulate a tdoa measurements
-
+        /*
         float groundTruthx = 1.0f;
         float groundTruthy = 1.0f;
         float landmark[][] = particleFilter.getLandmarks();
@@ -57,7 +60,10 @@ public class Main {
             newNum = particleFilter.resampleAndRegenerate(index, particleFilter.getNumberOfParticles()/(i+1), 0.5f/(i+1)/(i+1));
             particleFilter.update(tdoaMeasurement, newNum);
 
-            FileUtils.saveParticles(particleFilter.getParticles(), index,"loop"+i);
+            //particleFilter.estimate(100);
+            particleFilter.estimateIntermediate();
+            //FileUtils.saveParticles(particleFilter.getParticles(), index,"loop"+i);
+
         }
         particleFilter.estimate(100);
         log("newNum = " + newNum);
@@ -111,9 +117,11 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }*/
-        BioServer bioServer = new BioServer(33333);
+        BioServer bioServer = new BioServer(33333, particleFilter);
         new Thread(bioServer).start();
         log("server started succussfully");
+
+
     }
 
     public static void log(String s){

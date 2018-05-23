@@ -10,16 +10,27 @@ public class BioServer implements Runnable{
     private ServerSocket server = null;
     private Socket client = null;
     private List messageQueue = null;
+    private Observer observer = null;
 
     private BioProcessor bioProcessor = null;
 
     public BioServer(int port){
         this.port = port;
-        clientThreadPoo = new ArrayList();
-        messageQueue = new ArrayList();
+        this.clientThreadPoo = new ArrayList();
+        this.messageQueue = new ArrayList();
         //bioProcessor = new BioProcessor(messageQueue);
     }
 
+    public BioServer(int port, Observer observer){
+        this.port = port;
+        this.clientThreadPoo = new ArrayList();
+        this.messageQueue = new ArrayList();
+        this.observer = observer;
+    }
+
+    public void setObserver(Observer observer){
+        this.observer = observer;
+    }
     @Override
     public void run() {
         try {
@@ -27,7 +38,7 @@ public class BioServer implements Runnable{
         }catch (Exception e){
             e.printStackTrace();
         }
-        new Thread(new BioProcessor(messageQueue)).start();
+        new Thread(new BioProcessor(this.messageQueue, this.observer)).start();
         while (true){
             try {
                 client = server.accept();
