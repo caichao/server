@@ -63,8 +63,15 @@ public class MainFrame extends JFrame implements Runnable{
         BasicStroke boldStroke = null;
         float[][] particles = null;
         float[][] allParticles = null;
-        int numberOfParticles = 100;
-        int scale = 100;
+        int numberOfParticles = ParticleFilter.topParticleNumber;
+        float scale = 100;
+        {
+            try {
+                scale = JSONUtils.getMapGUIScaleCoefficient("config.txt");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         Font font = null;
 
         /*public DrawParticles(){ // for debug test
