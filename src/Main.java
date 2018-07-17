@@ -1,7 +1,3 @@
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Random;
-
 public class Main {
 
     public static void main(String args[]){
@@ -10,6 +6,8 @@ public class Main {
 
         MainFrame mainFrame = new MainFrame(particleFilter);
         new Thread(mainFrame).start();
+
+        particleFilter.generateUniformParticles();
         /*System.out.println("This is a java test!");
 
         System.out.println("guassian test = " + particleFilter.guassian(0.5f));
@@ -18,11 +16,9 @@ public class Main {
 
         System.out.println("Random = " + (random.nextFloat() * 2 - 1) );*/
 
-
-
         // the first step is to randomly generate new particles
 
-        particleFilter.generateUniformParticles(6.8f, 3.2f);
+        //particleFilter.generateUniformParticles(6.8f, 3.2f);
         //FileUtils.saveParticles(particleFilter.getParticles(), 2000, "InitialParticles");
         //log("particles save ok ");
 
@@ -117,10 +113,14 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }*/
+
+        ScheduleAnchorThread scheduleAnchorThread = new ScheduleAnchorThread();
+        scheduleAnchorThread.start();
+        log("Sechdule thread is started");
+
         BioServer bioServer = new BioServer(33333, particleFilter);
         new Thread(bioServer).start();
         log("server started succussfully");
-
 
     }
 

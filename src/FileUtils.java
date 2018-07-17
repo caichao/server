@@ -109,7 +109,30 @@ public class FileUtils {
         }
     }
 
-    public static void saveList(List<Double> bytes, String name){
+    public static void saveDoubleList(List<Double> bytes, String name){
+        File file = new File(SDPATH+name+".txt");
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(file);
+            if(!file.exists())
+                file.createNewFile();
+            for(int i = 0; i < bytes.size() ; i++){
+                fw.write(String.valueOf(bytes.get(i)) + "\r\n");
+                fw.flush();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            try {
+                if(fw != null)
+                    fw.close();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void saveFloatList(List<Float> bytes, String name){
         File file = new File(SDPATH+name+".txt");
         FileWriter fw = null;
         try {

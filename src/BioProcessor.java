@@ -3,7 +3,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BioProcessor implements Runnable, Subject{
+public class BioProcessor implements Runnable, Subject {
 
     private List queue = null;
     private String msg = null;
@@ -26,11 +26,11 @@ public class BioProcessor implements Runnable, Subject{
                     queue.remove(0);
                 }
 
-                System.out.println("message from client:" + msg);
+                //System.out.println("message from client:" + msg);
                 try {
-                    JSONObject jsonObject = new JSONObject(msg);
-                    System.out.println("identity = " + jsonObject.getInt("identity"));
-                    System.out.println("tdoa = " + jsonObject.getInt("tdoa"));
+                    //JSONObject jsonObject = new JSONObject(msg);
+                    //System.out.println("identity = " + jsonObject.getInt("identity"));
+                    //System.out.println("tdoa = " + jsonObject.getInt("tdoa"));
                     // the following line send the data to the particle filter thread
                     this.setNotificationMessage(msg);
                 }catch (Exception e){

@@ -9,12 +9,14 @@ import java.util.Map;
 public class ScheduleAnchorThread extends Thread {
     // This thread is used to schedule the anchor for signal transmission
 
-    private final int portNum = 12000;
+    private final int portNum = 22222;
     private boolean isScheduleLive = true;
     private boolean isTimeToBroadcastMessage = true;
     private String messageWrapper = null;
     private int bufferLength = 1024;
+    public static final int schedualInterval = 1000; // unit in microseconds
     private byte[] buffer = new byte[bufferLength];
+    private static int sequence = 0;
 
     public void broadcastMessage(){
         synchronized (this){
@@ -31,17 +33,35 @@ public class ScheduleAnchorThread extends Thread {
             // broadcast ip address
             InetAddress destination = InetAddress.getByName("255.255.255.255");
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, destination, portNum);
+
+
             int i = 0;
             while (isScheduleLive){
                 if(isTimeToBroadcastMessage){
                     //isTimeToBroadcastMessage = false;
-                    Thread.sleep(2000);
-                    packet.setData(broadcastMessageWrapper(0,2).getBytes());
-                    serverSocket.send(packet);
+//                    Thread.sleep(1000);
+//                    packet.setData(broadcastMessageWrapper(0,2).getBytes());
+//                    serverSocket.send(packet);
+//                    Thread.sleep(1000);
+//                    packet.setData(broadcastMessageWrapper(1,3).getBytes());
+//                    serverSocket.send(packet);
 
-                    Thread.sleep(2000);
-                    packet.setData(broadcastMessageWrapper(1,3).getBytes());
+                    packet.setData(schedualAnchor(0, sequence % 4).getBytes());
                     serverSocket.send(packet);
+                    Thread.sleep(schedualInterval);
+
+                    packet.setData(schedualAnchor(1, sequence % 4).getBytes());
+                    serverSocket.send(packet);
+                    Thread.sleep(schedualInterval);
+
+                    packet.setData(schedualAnchor(2, sequence % 4).getBytes());
+                    serverSocket.send(packet);
+                    Thread.sleep(schedualInterval);
+
+                    packet.setData(schedualAnchor(3, sequence % 4).getBytes());
+                    serverSocket.send(packet);
+                    Thread.sleep(schedualInterval);
+                    sequence++;
                     System.out.println("Send a broadcast message" + (++i));
                 }
             }
@@ -58,7 +78,12 @@ public class ScheduleAnchorThread extends Thread {
         }
     }
 
+    public static int getScheduleRound(){
+        return sequence;
+    }
+
     /**
+     * deprecated method
      * schedule anchor information
      *  in the first round, we should schedule anchors with odd number
      *  in the second round, we schedule all the anchors with even number
@@ -71,7 +96,23 @@ public class ScheduleAnchorThread extends Thread {
         map.put("parity", anchorID1%2); // used for the anchor to fast get the information without any exception handler
         map.put(anchorID1, "up");
         map.put(anchorID2, "down");
+        /*map.put("up", anchorID1);
+        map.put("down", anchorID2);*/
 
+        JSONObject jsonObject = new JSONObject(map);
+        return jsonObject.toString();
+    }
+
+    /**
+     * schedual the anchors with sequence ID
+     * @param anchorId: the ID of which that is time to transmit beacon message
+     * @param sequenceId: the sequence of the schedule round
+     * @return json format information
+     */
+    public String schedualAnchor(int anchorId, int sequenceId){
+        Map map = new HashMap();
+        map.put("anchorId", anchorId); // used for the anchor to fast get the information without any exception handler
+        map.put("sequenceId", sequenceId);
         JSONObject jsonObject = new JSONObject(map);
         return jsonObject.toString();
     }
