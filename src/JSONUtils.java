@@ -67,7 +67,7 @@ public class JSONUtils {
 
     public static float[][] loadAnchorPosition(String fileName) throws Exception{
 
-        float[][] anchorPositions = new float[4][2];
+        float[][] anchorPositions = new float[4][3];
         String content = new Scanner(new File(fileName)).useDelimiter("\\Z").next();
         JSONObject jsonObject = new JSONObject(content);
         JSONObject tmp = null;
@@ -75,6 +75,7 @@ public class JSONUtils {
             tmp = jsonObject.getJSONObject("anchor" + i);
             anchorPositions[i][0] = (float) tmp.getDouble("x");
             anchorPositions[i][1] = (float) tmp.getDouble("y");
+            anchorPositions[i][2] = (float) tmp.getDouble("z");
         }
         return anchorPositions;
     }

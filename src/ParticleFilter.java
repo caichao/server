@@ -14,6 +14,7 @@ public class ParticleFilter extends Thread implements Observer{
     private float intermediateWeights[] = null; // weights for the topParticleNumber
     private float x = 0;
     private float y = 0;
+    private float z = 0;
     public static final int topParticleNumber = 100;
     private int numberOfValidParticles = numberOfParticles;
 
@@ -73,12 +74,12 @@ public class ParticleFilter extends Thread implements Observer{
 
     void prameterInitialization(){
         random = new Random();
-        particles = new float[numberOfParticles][2];
+        particles = new float[numberOfParticles][3];
         weights = new float[numberOfParticles];
         intermediateWeights = new float[topParticleNumber];
         jsonUtils = new JSONUtils();
         try {
-            landmarks = jsonUtils.loadAnchorPosition("anchorPosition.txt");
+            landmarks = jsonUtils.loadAnchorPosition("config.txt");
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -90,6 +91,7 @@ public class ParticleFilter extends Thread implements Observer{
     public void generateUniformParticles(){
         float maxXCoordinates = 0;
         float maxYCoordinates = 0;
+        float maxZCoordinates = 0;
         for(int i = 0; i < landmarks.length; i++){
             if(landmarks[i][0] > maxXCoordinates){
                 maxXCoordinates = landmarks[i][0];
@@ -97,8 +99,11 @@ public class ParticleFilter extends Thread implements Observer{
             if(landmarks[i][1] > maxYCoordinates){
                 maxYCoordinates = landmarks[i][1];
             }
+            if(landmarks[i][2] > maxYCoordinates){
+                maxZCoordinates = landmarks[i][2];
+            }
         }
-        generateUniformParticles(maxXCoordinates, maxYCoordinates);
+        generateUniformParticles(maxXCoordinates, maxYCoordinates, maxZCoordinates);
     }
 
     /**
@@ -106,26 +111,28 @@ public class ParticleFilter extends Thread implements Observer{
      * @param x - maximum value on x axis
      * @param y - maximum value on y axis
      */
-    public void generateUniformParticles(float x, float y){
+    public void generateUniformParticles(float x, float y, float z){
         for(int i = 0; i < numberOfParticles; i++){
             particles[i][0] = x * random.nextFloat();
             particles[i][1] = y * random.nextFloat();
+            particles[i][2] = z * random.nextFloat();
         }
     }
 
     /**
      * update the anchor position based on the estimated speed
      * @param speed: units in meters per second
-     * @param anchorId
+     * @param anchorId: captured anchor ID
      */
     public void predict(float speed, int anchorId){
         // to achieve computation efficiency, we only update the particles with top weights
         float denominator = 0.0f;
         float displacement = speed * ScheduleAnchorThread.schedualInterval;
         for(int i = 0; i < topParticleNumber; i++){
-            denominator = (float) Math.sqrt(Math.pow(particles[i][0] - landmarks[anchorId][0], 2) + Math.pow(particles[i][1] - landmarks[anchorId][1], 2));
+            denominator = (float) Math.sqrt(Math.pow(particles[i][0] - landmarks[anchorId][0], 2) + Math.pow(particles[i][1] - landmarks[anchorId][1], 2) + Math.pow(particles[i][2] - landmarks[anchorId][2], 2));
             particles[i][0] = displacement / denominator * (landmarks[anchorId][0] - particles[i][0]);
             particles[i][1] = displacement / denominator * (landmarks[anchorId][1] - particles[i][1]);
+            particles[i][2] = displacement / denominator * (landmarks[anchorId][2] - particles[i][2]);
         }
     }
 
@@ -236,6 +243,7 @@ public class ParticleFilter extends Thread implements Observer{
             for(int j = 0; j < num ; j++){
                 particles[(shift + availableNumberOfParticles) % this.numberOfParticles][0] =  (2 * random.nextFloat() - 1 ) * scale + particles[i][0];
                 particles[(shift + availableNumberOfParticles) % this.numberOfParticles][1] =  (2 * random.nextFloat() - 1 ) * scale + particles[i][1];
+                particles[(shift + availableNumberOfParticles) % this.numberOfParticles][2] =  (2 * random.nextFloat() - 1 ) * scale + particles[i][2];
             }
 
             availableNumberOfParticles += num;
@@ -247,7 +255,7 @@ public class ParticleFilter extends Thread implements Observer{
     public void estimateIntermediate(){
         float xx = 0;
         float yy = 0;
-
+        float zz = 0;
         float sum = 0.0f;
 
         for(int i = 0; i < topParticleNumber; i++){
@@ -263,11 +271,13 @@ public class ParticleFilter extends Thread implements Observer{
         for(int i = 0; i < topParticleNumber; i++){
             xx += intermediateWeights[i] * particles[i][0];
             yy += intermediateWeights[i] * particles[i][1];
+            zz += intermediateWeights[i] * particles[i][2];
         }
         /*x = xx / numberOfParticles;
         y =  yy / numberOfParticles; */
         this.x = xx;
         this.y = yy;
+        this.z = zz;
     }
 
     /**
@@ -276,6 +286,7 @@ public class ParticleFilter extends Thread implements Observer{
     public void estimate(int numberOfParticles){
         float xx = 0;
         float yy = 0;
+        float zz = 0;
         if(numberOfParticles > this.numberOfValidParticles)
             numberOfParticles = this.numberOfValidParticles;
 
@@ -289,11 +300,13 @@ public class ParticleFilter extends Thread implements Observer{
         for(int i = 0; i < numberOfParticles; i++){
             xx += weights[i] * particles[i][0];
             yy += weights[i] * particles[i][1];
+            zz += weights[i] * particles[i][2];
         }
         /*x = xx / numberOfParticles;
         y =  yy / numberOfParticles; */
         this.x = xx;
         this.y = yy;
+        this.z = zz;
     }
 
     /**
@@ -310,6 +323,10 @@ public class ParticleFilter extends Thread implements Observer{
      */
     public float getY() {
         return y;
+    }
+
+    public float getZ(){
+        return z;
     }
 
     //******************************** the following part are for debuging purpose****************************
@@ -355,12 +372,12 @@ public class ParticleFilter extends Thread implements Observer{
 
     /**
      * calculate the euclidian distance between two points
-     * @param x: point one in 2D
-     * @param y: point two in 2D
+     * @param x: point one in 3D
+     * @param y: point two in 3D
      * @return distance in float format
      */
     public float euclidianDistance(float x[], float y[]){
-        return (float) Math.sqrt(pow(x[0] - y[0], 2) + pow(x[1] - y[1], 2));
+        return (float) Math.sqrt(pow(x[0] - y[0], 2) + pow(x[1] - y[1], 2) + + pow(x[2] - y[2], 2));
     }
 
     /**
@@ -418,41 +435,53 @@ public class ParticleFilter extends Thread implements Observer{
     }
 
     private void debugTestCode(){
-        float groundTruthx = 1.0f;
-        float groundTruthy = 1.0f;
+        float groundTruthx = 1.1f;
+        float groundTruthy = 1f;
+        float groundTruthz = 1.5f;
 
         TDOAMeasurement one = new TDOAMeasurement();
         one.anchorIDOne = 0;
         one.anchorIDTwo = 2;
-        float d1 = (float) Math.sqrt(pow(landmarks[one.anchorIDOne][0] - groundTruthx, 2) + pow(landmarks[one.anchorIDOne][1] - groundTruthy, 2));
-        float d2 = (float) Math.sqrt(pow(landmarks[one.anchorIDTwo][0] - groundTruthx, 2) + pow(landmarks[one.anchorIDTwo][1] - groundTruthy, 2));
+        float d1 = (float) Math.sqrt(pow(landmarks[one.anchorIDOne][0] - groundTruthx, 2) + pow(landmarks[one.anchorIDOne][1] - groundTruthy, 2) + pow(landmarks[one.anchorIDOne][2] - groundTruthz, 2));
+        float d2 = (float) Math.sqrt(pow(landmarks[one.anchorIDTwo][0] - groundTruthx, 2) + pow(landmarks[one.anchorIDTwo][1] - groundTruthy, 2) + pow(landmarks[one.anchorIDTwo][2] - groundTruthz, 2));
 
         one.tdoa = (d1 - d2) / this.getC();
 
         TDOAMeasurement two = new TDOAMeasurement();
         two.anchorIDOne = 1;
         two.anchorIDTwo = 3;
-        d1 = (float) Math.sqrt(pow(landmarks[two.anchorIDOne][0] - groundTruthx, 2) + pow(landmarks[two.anchorIDOne][1] - groundTruthy, 2));
-        d2 = (float) Math.sqrt(pow(landmarks[two.anchorIDTwo][0] - groundTruthx, 2) + pow(landmarks[two.anchorIDTwo][1] - groundTruthy, 2));
+        d1 = (float) Math.sqrt(pow(landmarks[two.anchorIDOne][0] - groundTruthx, 2) + pow(landmarks[two.anchorIDOne][1] - groundTruthy, 2) + pow(landmarks[two.anchorIDOne][2] - groundTruthz, 2));
+        d2 = (float) Math.sqrt(pow(landmarks[two.anchorIDTwo][0] - groundTruthx, 2) + pow(landmarks[two.anchorIDTwo][1] - groundTruthy, 2) + pow(landmarks[two.anchorIDTwo][2] - groundTruthz, 2));
 
         two.tdoa = (d1 - d2) / this.getC();
 
-        TDOAMeasurement tdoaMeasurement[] = new TDOAMeasurement[2];
+        TDOAMeasurement three = new TDOAMeasurement();
+        three.anchorIDOne = 0;
+        three.anchorIDTwo = 3;
+        d1 = (float) Math.sqrt(pow(landmarks[three.anchorIDOne][0] - groundTruthx, 2) + pow(landmarks[three.anchorIDOne][1] - groundTruthy, 2) + pow(landmarks[three.anchorIDOne][2] - groundTruthz, 2));
+        d2 = (float) Math.sqrt(pow(landmarks[three.anchorIDTwo][0] - groundTruthx, 2) + pow(landmarks[three.anchorIDTwo][1] - groundTruthy, 2) + pow(landmarks[three.anchorIDTwo][2] - groundTruthz, 2));
+
+        three.tdoa = (d1 - d2) / this.getC();
+
+        TDOAMeasurement tdoaMeasurement[] = new TDOAMeasurement[3];
         tdoaMeasurement[0] = one;
         tdoaMeasurement[1] = two;
+        tdoaMeasurement[2] = three;
         this.update(tdoaMeasurement, this.getNumberOfParticles());
         //FileUtils.saveParticles(this.getParticles(), this.topK(this.getWeights(), 100), "top100");
         int newNum = 0;
-        for(int i = 0; i < 5; i++){
+        int j = 500;
+        while(j-- > 0){
+        for(int i = 0; i < 10; i++){
             int index[] = this.topK(this.getWeights(), topParticleNumber);
 
-            newNum = this.resampleAndRegenerate(index, this.getNumberOfParticles()/(i+1), 0.5f/(i+1)/(i+1));
+            newNum = this.resampleAndRegenerate(index, this.getNumberOfParticles()/(i+1), 0.5f/(float)Math.pow((i+1),3f));
             this.update(tdoaMeasurement, newNum);
 
             //this.estimate(topParticleNumber);
             this.estimateIntermediate();
             //FileUtils.saveParticles(this.getParticles(), index,"loop"+i);
-
+        }
         }
         this.estimate(topParticleNumber);
     }
@@ -477,7 +506,7 @@ public class ParticleFilter extends Thread implements Observer{
         for(int i = 0; i < 5; i++){
             int index[] = this.topK(this.getWeights(), topParticleNumber);
 
-            newNum = this.resampleAndRegenerate(index, this.getNumberOfParticles()/(i+1), 0.5f/(i+1)/(i+1));
+            newNum = this.resampleAndRegenerate(index, this.getNumberOfParticles()/(i+1), 0.5f/(float)Math.pow(i+1, 3));
             this.updateOneShot(tdoaMeasurement, newNum);
 
             //this.estimate(topParticleNumber);
@@ -492,13 +521,16 @@ public class ParticleFilter extends Thread implements Observer{
         this.update(tdoaMeasurements, this.getNumberOfParticles());
         //FileUtils.saveParticles(this.getParticles(), this.topK(this.getWeights(), 100), "top100");
         int newNum = 0;
-        for(int i = 0; i < 5; i++){
-            int index[] = this.topK(this.getWeights(), topParticleNumber);
-            newNum = this.resampleAndRegenerate(index, this.getNumberOfParticles()/(i+1), 0.5f/(i+1)/(i+1));
-            this.update(tdoaMeasurements, newNum);
-            //this.estimate(topParticleNumber);
-            this.estimateIntermediate();
-            //FileUtils.saveParticles(this.getParticles(), index,"loop"+i);
+        int j = 500;
+        while(j-- > 0) {
+            for (int i = 0; i < 5; i++) {
+                int index[] = this.topK(this.getWeights(), topParticleNumber);
+                newNum = this.resampleAndRegenerate(index, this.getNumberOfParticles() / (i + 1), 0.5f / (i + 1) / (i + 1));
+                this.update(tdoaMeasurements, newNum);
+                //this.estimate(topParticleNumber);
+                this.estimateIntermediate();
+                //FileUtils.saveParticles(this.getParticles(), index,"loop"+i);
+            }
         }
         this.estimate(topParticleNumber);
     }
@@ -510,7 +542,7 @@ public class ParticleFilter extends Thread implements Observer{
         CapturedBeaconMessage temp = new CapturedBeaconMessage();
         TDOACalUtil tdoaCalUtil = new TDOACalUtil();
         TDOAMeasurement tdoaMeasurement = new TDOAMeasurement();
-        TDOAMeasurement[] measurements = new TDOAMeasurement[2];
+        TDOAMeasurement[] measurements = new TDOAMeasurement[3];
         int captured = 0;
         int debugIndex = 0;
         while(isParticleThreadAlive){
@@ -534,13 +566,6 @@ public class ParticleFilter extends Thread implements Observer{
                     //debugOneMeasurement();
                     tdoaCalUtil.pushNewBeaconMessage(temp);
                     if(temp.selfAnchorId >= 100){ // target captured beacon message
-                        //System.out.println("captured beacon message");
-                        /*if(tdoaCalUtil.isTDOAReady(0, 3, temp.selfAnchorId)){
-                            System.out.println("tdoa distance = " + (tdoaCalUtil.getTdoaDistance()));
-
-                            tdoaMeasurement = tdoaCalUtil.getTdoaMeasurement();
-                            locationEstimationRoutine(tdoaMeasurement);
-                        }*/
                         debugIndex++;
                         if(debugIndex >=2 ){
                             debugIndex = 0;
@@ -550,7 +575,7 @@ public class ParticleFilter extends Thread implements Observer{
                             //locationEstimationRoutineWithOneTdoa(tdoaMeasurement);
                             tdoaMeasurement = tdoaCalUtil.getTdoaMeasurement();
                             measurements[captured++] = (TDOAMeasurement) tdoaMeasurement.clone();
-                            if(captured >= 2){
+                            if(captured >= 3){
                                 captured = 0;
                                 locationEstimationRoutineWithMultipleTdoa(measurements);
                             }
@@ -562,7 +587,7 @@ public class ParticleFilter extends Thread implements Observer{
                     }
                 }
                     /*debugTestCode();
-                    */
+                    Thread.sleep(1000);*/
 
             }catch (Exception e){
                 e.printStackTrace();

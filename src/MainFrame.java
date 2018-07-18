@@ -143,7 +143,7 @@ public class MainFrame extends JFrame implements Runnable{
             // add labels for the estimated locations
             g2.setColor(Color.BLUE);
 
-            drawLabels(particleFilter.getX(), particleFilter.getY(), String.format("x = %.2f y = %.2f", particleFilter.getX(), particleFilter.getY()), g2);
+            drawLabels(particleFilter.getX(), particleFilter.getY(), String.format("x = %.2f y = %.2f \r\n z = %.2f", particleFilter.getX(), particleFilter.getY(), particleFilter.getZ()), g2);
             repaint();
         }
 
