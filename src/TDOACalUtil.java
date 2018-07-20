@@ -1,3 +1,5 @@
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +15,7 @@ public class TDOACalUtil {
     private int c = 340; // speed of sound
     // for debug purpose
     private List<Float> distanceList = null;
+    private float [][] anchorCoordinates = null;
 
     public TDOACalUtil(){
         parameterInitialization();
@@ -22,6 +25,11 @@ public class TDOACalUtil {
         this.beaconMessageMap = new HashMap<Integer, List>();
         this.distanceList = new ArrayList<Float>();
         this.tdoaMeasurement = new TDOAMeasurement();
+        try {
+            this.anchorCoordinates = JSONUtils.loadAnchorPosition("config.txt");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public float getTdoa() {
@@ -67,6 +75,9 @@ public class TDOACalUtil {
             CapturedBeaconMessage one = targetList.get(targetList.size() - 1);
             CapturedBeaconMessage two = targetList.get(targetList.size() - 2);
 
+            if(one.capturedSequence != two.capturedSequence){
+                return false;
+            }
             // get the corresponding anchor list information
             int anchorOne = one.capturedAnchorId;
             int anchorTwo = two.capturedAnchorId;
@@ -98,12 +109,99 @@ public class TDOACalUtil {
             }
             long twoValidTdoa = tdoaCal(capturedBeaconMessagePairOne, capturedBeaconMessagePairTwo);
 
+            float checkDistance = Math.abs(oneValidTdoa - twoValidTdoa) / 2.0f / this.fs * this.c;
+            float groundTruthDistance = euclideanDistance(anchorCoordinates[anchorOne], anchorCoordinates[anchorTwo]);
+            if(Math.abs(checkDistance - groundTruthDistance) > 1.0){
+                return false;
+            }
             this.tdoa = oneValidTdoa / 2 + twoValidTdoa / 2 - targetTdoa;
             this.tdoa = this.tdoa / this.fs;
             this.tdoaMeasurement.anchorIDOne = anchorOne;
             this.tdoaMeasurement.anchorIDTwo = anchorTwo;
             this.tdoaMeasurement.tdoa = this.tdoa;
             isReady = true;
+
+
+        }
+        return isReady;
+    }
+
+    // the following function are for debug purpose
+    public boolean isTDOAValid(int target, int sequence){
+        boolean isReady = false;
+        List<CapturedBeaconMessage> targetList = beaconMessageMap.get(target);
+        if(targetList.size() >= 2){
+            // first retrieve the newest beacon message information
+            CapturedBeaconMessage one = targetList.get(targetList.size() - 1);
+            CapturedBeaconMessage two = targetList.get(targetList.size() - 2);
+
+            if(one.capturedSequence != two.capturedSequence){
+                return false;
+            }
+            // get the corresponding anchor list information
+            int anchorOne = one.capturedAnchorId;
+            int anchorTwo = two.capturedAnchorId;
+            if(anchorOne == anchorTwo) {// the captured anchor information should be different
+                return false;
+            }
+            long targetTdoa = tdoaCal(one, two);
+            List<CapturedBeaconMessage> listOne = beaconMessageMap.get(anchorOne);
+            List<CapturedBeaconMessage> listTwo = beaconMessageMap.get(anchorTwo);
+            if(listOne == null || listTwo == null){
+                return false;
+            }
+            if(listOne.size() < 2 || listTwo.size() < 2){
+                return false;
+            }
+            CapturedBeaconMessage OneFromListOne = null;
+            CapturedBeaconMessage TwoFromListOne = null;
+            OneFromListOne = isContainBeaconMessage(one, listOne);
+            TwoFromListOne = isContainBeaconMessage(two, listOne);
+            if(OneFromListOne == null || TwoFromListOne == null){
+                return false;
+            }
+            long oneValidTdoa = tdoaCal(OneFromListOne, TwoFromListOne);
+
+            CapturedBeaconMessage OneFromListTwo = isContainBeaconMessage(one, listTwo);
+            CapturedBeaconMessage TwoFromListTwo = isContainBeaconMessage(two, listTwo);
+            if(OneFromListTwo == null || TwoFromListTwo == null){
+                return false;
+            }
+            long twoValidTdoa = tdoaCal(OneFromListTwo, TwoFromListTwo);
+
+            float checkDistance = Math.abs(oneValidTdoa - twoValidTdoa) / 2.0f / this.fs * this.c;
+            float groundTruthDistance = euclideanDistance(anchorCoordinates[anchorOne], anchorCoordinates[anchorTwo]);
+            if(Math.abs(checkDistance - groundTruthDistance) > 1.0){
+                return false;
+            }
+            this.tdoa = oneValidTdoa / 2 + twoValidTdoa / 2 - targetTdoa;
+            this.tdoa = this.tdoa / this.fs;
+            this.tdoaMeasurement.anchorIDOne = anchorOne;
+            this.tdoaMeasurement.anchorIDTwo = anchorTwo;
+            this.tdoaMeasurement.tdoa = this.tdoa;
+            isReady = true;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("oneValideTdoa = ").append(oneValidTdoa).append("\r\n")
+                    .append("twoValideTdoa = ").append(twoValidTdoa).append("\r\n")
+                    .append("tdoa = ").append(tdoa).append("\r\n")
+                    .append("anchorIDOne = ").append(anchorOne).append("\r\n")
+                    .append("anchorIDTwo = ").append(anchorTwo).append("\r\n")
+                    .append("checkDistance = ").append(checkDistance).append("\r\n")
+                    .append("groundtruth distance = ").append(groundTruthDistance);
+            FileUtils.saveBeaconMessage("debug/targetList_"+sequence+".txt", targetList);
+            FileUtils.saveBeaconMessage("debug/listOne_"+sequence+".txt", listOne);
+            FileUtils.saveBeaconMessage("debug/listTwo_"+sequence+".txt", listTwo);
+            FileUtils.saveStringMessage("debug/parameter.txt", stringBuilder.toString());
+            try {
+                FileUtils.saveStringMessage("debug/candidate_beacon_message_"+sequence+".txt", JSONUtils.toJson(OneFromListOne).toString());
+                FileUtils.saveStringMessage("debug/candidate_beacon_message_"+sequence+".txt", JSONUtils.toJson(TwoFromListOne).toString());
+                FileUtils.saveStringMessage("debug/candidate_beacon_message_"+sequence+".txt", JSONUtils.toJson(OneFromListTwo).toString());
+                FileUtils.saveStringMessage("debug/candidate_beacon_message_"+sequence+".txt", JSONUtils.toJson(TwoFromListTwo).toString());
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         return isReady;
     }
@@ -141,7 +239,12 @@ public class TDOACalUtil {
                                 return false;
                             }
                             long tdoaAnchorTwo = tdoaCal(firstCapturedMessage, secondCapturedMessage);
-
+                            float checkDistance = Math.abs(tdoaAnchorOne - tdoaAnchorTwo) / 2.0f / this.fs * this.c;
+                            float groundTruthDistance = euclideanDistance(anchorCoordinates[anchorIdOne], anchorCoordinates[anchorIdTwo]);
+                            if(Math.abs(checkDistance - groundTruthDistance) > 1){
+                                System.out.println("error timestamps");
+                                return false;
+                            }
                             this.tdoa = tdoaAnchorOne / 2 + tdoaAnchorTwo / 2 - tdoaTarget;
                             this.tdoa = this.tdoa / this.fs;
 
@@ -187,6 +290,9 @@ public class TDOACalUtil {
         if(beaconMessageMap.size() >= 2){ // store the tdoa information from at least two anchors
             List<CapturedBeaconMessage> listOne = beaconMessageMap.get(anchorIdOne);
             List<CapturedBeaconMessage> listTwo = beaconMessageMap.get(anchorIdTwo);
+            if(listOne == null || listTwo == null){
+                return false;
+            }
             if(listOne.size() >= 2 && listTwo.size() >= 2){
                 // use the latest information to calculate the distance
                 CapturedBeaconMessage one = listOne.get(listOne.size() - 1);
@@ -214,6 +320,7 @@ public class TDOACalUtil {
                                 FileUtils.saveFloatList(distanceList, "distance"+ ScheduleAnchorThread.getScheduleRound());
                                 distanceList.clear();
                             }*/
+                            System.out.println("distance between anchor["+anchorIdOne+"] and anchor["+anchorIdTwo+"] is = " + this.tdoa * 340.0f / 2);
                             if(this.tdoa * 340.0f  > 5){
                                 int i = 0;
                                 // here, we inspect large decoding error
@@ -232,6 +339,13 @@ public class TDOACalUtil {
         return tdoa;
     }
 
+    private float euclideanDistance(float [] anchorPosition1, float [] anchorPosition2){
+        float tmp = 0f;
+        tmp = (float) Math.pow(anchorPosition1[0] - anchorPosition2[0], 2);
+        tmp += (float) Math.pow(anchorPosition1[1] - anchorPosition2[1], 2);
+        tmp = (float) Math.sqrt(tmp);
+        return tmp;
+    }
 
     private boolean isSameBeaconMessage(CapturedBeaconMessage one, CapturedBeaconMessage two){
         boolean isTheSame = false;

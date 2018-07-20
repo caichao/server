@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,29 +109,16 @@ public class FileUtils {
     public static void saveDoubleList(List<Double> bytes, String name){
         File file = new File(SDPATH+name+".txt");
         FileWriter fw = null;
-        try {
-            fw = new FileWriter(file);
-            if(!file.exists())
-                file.createNewFile();
-            for(int i = 0; i < bytes.size() ; i++){
-                fw.write(String.valueOf(bytes.get(i)) + "\r\n");
-                fw.flush();
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            try {
-                if(fw != null)
-                    fw.close();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
+        fileOperation(file, fw, bytes);
     }
 
     public static void saveFloatList(List<Float> bytes, String name){
         File file = new File(SDPATH+name+".txt");
         FileWriter fw = null;
+
+    }
+
+    private static void fileOperation(File file, FileWriter fw, List bytes){
         try {
             fw = new FileWriter(file);
             if(!file.exists())
@@ -209,5 +193,45 @@ public class FileUtils {
             }
         }
         return filterCoefficient;
+    }
+
+    public static void saveLocalizationResults(float x, float y, float z, String fileName){
+        PrintWriter out = null;
+        String result = String.format("%.4f\t%.4f\t%.4f", x, y, z);
+        try {
+            out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)));
+            out.println(result);
+        }catch (IOException e) {
+            System.err.println(e);
+        }finally{
+            if(out != null){
+                out.close();
+            }
+        }
+    }
+
+    public static void saveBeaconMessage(String fileName, List<CapturedBeaconMessage> list){
+        StringBuilder stringBuilder = new StringBuilder();
+        for(CapturedBeaconMessage capturedBeaconMessage : list){
+            try {
+                stringBuilder.append(JSONUtils.toJson(capturedBeaconMessage)).append("\r\n");
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        saveStringMessage(fileName, stringBuilder.toString());
+    }
+    public static void saveStringMessage(String fileName, String message){
+        PrintWriter out = null;
+        try {
+            out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)));
+            out.println(message);
+        }catch (Exception e) {
+            System.err.println(e);
+        }finally{
+            if(out != null){
+                out.close();
+            }
+        }
     }
 }

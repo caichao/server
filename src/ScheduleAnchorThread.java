@@ -14,10 +14,11 @@ public class ScheduleAnchorThread extends Thread {
     private boolean isTimeToBroadcastMessage = true;
     private String messageWrapper = null;
     private int bufferLength = 1024;
-    public static final int schedualInterval = 1000; // unit in microseconds
+    //public static final int schedualInterval = 1000; // unit in microseconds
     private byte[] buffer = new byte[bufferLength];
     private static int sequence = 0;
-
+    private int schedualInterval = 0;
+    private String configFilePath = "config.txt";
     public void broadcastMessage(){
         synchronized (this){
             isTimeToBroadcastMessage = true;
@@ -33,7 +34,7 @@ public class ScheduleAnchorThread extends Thread {
             // broadcast ip address
             InetAddress destination = InetAddress.getByName("255.255.255.255");
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, destination, portNum);
-
+            schedualInterval = JSONUtils.getScheduleInterval(configFilePath);
 
             int i = 0;
             while (isScheduleLive){
