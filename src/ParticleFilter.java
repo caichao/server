@@ -4,8 +4,7 @@ import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static java.lang.Math.floor;
-import static java.lang.Math.pow;
+import static java.lang.Math.*;
 
 public class ParticleFilter extends Thread implements Observer{
 
@@ -14,11 +13,12 @@ public class ParticleFilter extends Thread implements Observer{
     private Random random = null;
     private float particles[][] = null; // all the particles
     private float weights[] = null; // weights for all the particles
+    private float errors[] = null;
     private float intermediateWeights[] = null; // weights for the topParticleNumber
     private float x = 0;
     private float y = 0;
     private float z = 1;
-    public static final int topParticleNumber = 100;
+    public static final int topParticleNumber = 50;
     private int numberOfValidParticles = numberOfParticles;
 
     private float c = 340;
@@ -28,7 +28,7 @@ public class ParticleFilter extends Thread implements Observer{
 
     // parameter for the guassian function
     private float mu = 0;
-    private float sigma = 0.3f;
+    private float sigma = 0.5f;
 
     //******************************** about message handler ***************************
     private Subject subject = null;
@@ -82,6 +82,7 @@ public class ParticleFilter extends Thread implements Observer{
         random = new Random();
         particles = new float[numberOfParticles][2];
         weights = new float[numberOfParticles];
+        errors = new float[numberOfParticles];
         intermediateWeights = new float[topParticleNumber];
         jsonUtils = new JSONUtils();
         try {
@@ -156,6 +157,7 @@ public class ParticleFilter extends Thread implements Observer{
         // reinitiale the weights
         for(int i = 0; i < numberOfParticles ; i++){
             weights[i] = 1.0f;
+            //errors[i] = 0.0f;
         }
         // reweight the samples according to the measuremnents
         for(int i = 0; i < tdoaMeasurement.length; i++){
@@ -165,12 +167,52 @@ public class ParticleFilter extends Thread implements Observer{
             for(int j = 0; j < numberOfParticles; j++){
                 d1 = euclidianDistance(particles[j], landmarks[tdoaMeasurement[i].anchorIDOne]);
                 d2 = euclidianDistance(particles[j], landmarks[tdoaMeasurement[i].anchorIDTwo]);
-                error = Math.abs(d1 - d2 - c * tdoaMeasurement[i].tdoa);
-
-                // update the weight
-                weights[j] *= guassian(error);
+                error = (float)Math.abs((d1 - d2) - this.c * tdoaMeasurement[i].tdoa);
+                weights[j] *= guassian((float) pow(error, 2));
             }
         }
+
+        // update the weight
+//        for(int j = 0; j < numberOfParticles; j++) {
+//            weights[j] *= guassian(errors[j]);
+//        }
+        // avoid round-off error
+        for(int i = 0; i < numberOfParticles ; i++){
+            weights[i] += 1e-30;
+        }
+        // normalize the weights
+        float sum = 0;
+        for(int i = 0; i < numberOfParticles; i++){
+            sum += weights[i];
+        }
+        for(int j = 0; j < numberOfParticles; j++){
+            weights[j] /= sum;
+        }
+    }
+
+    public void update(List<TDOAMeasurement> tdoaMeasurement, int numberOfParticles){
+        // reinitiale the weights
+        for(int i = 0; i < numberOfParticles ; i++){
+            weights[i] = 1.0f;
+            //errors[i] = 0.0f;
+        }
+        // reweight the samples according to the measuremnents
+        for(int i = 0; i < tdoaMeasurement.size(); i++){
+            float d1 = 0;
+            float d2 = 0;
+            float error = 0;
+            for(int j = 0; j < numberOfParticles; j++){
+                d1 = euclidianDistance(particles[j], landmarks[tdoaMeasurement.get(i).anchorIDOne]);
+                d2 = euclidianDistance(particles[j], landmarks[tdoaMeasurement.get(i).anchorIDTwo]);
+                error = (float)Math.abs((d1 - d2) + this.c * tdoaMeasurement.get(i).tdoa);
+                weights[j] *= guassian((float) pow(error, 2));
+            }
+        }
+
+        // update the weight
+//        for(int j = 0; j < numberOfParticles; j++) {
+//            weights[j] *= guassian(errors[j]);
+//        }
         // avoid round-off error
         for(int i = 0; i < numberOfParticles ; i++){
             weights[i] += 1e-30;
@@ -446,8 +488,8 @@ public class ParticleFilter extends Thread implements Observer{
     }
 
     private void debugTestCode(){
-        float groundTruthx = 1.7f;
-        float groundTruthy = 1f;
+        float groundTruthx = 1.6f;
+        float groundTruthy = 2.8f;
         float groundTruthz = this.z;
 
         TDOAMeasurement one = new TDOAMeasurement();
@@ -458,8 +500,8 @@ public class ParticleFilter extends Thread implements Observer{
         coordinates[0] = groundTruthx;
         coordinates[1] = groundTruthy;
         coordinates[2] = groundTruthz;
-        float d1 = euclidianDistance(coordinates, landmarks[one.anchorIDOne]);
-        float d2 = euclidianDistance(coordinates, landmarks[one.anchorIDTwo]);
+        float d1 = euclidianDistance(coordinates, landmarks[one.anchorIDOne])+0.2f;
+        float d2 = euclidianDistance(coordinates, landmarks[one.anchorIDTwo]) ;
         //float d1 = (float) Math.sqrt(pow(landmarks[one.anchorIDOne][0] - groundTruthx, 2) + pow(landmarks[one.anchorIDOne][1] - groundTruthy, 2) + pow(landmarks[one.anchorIDOne][2] - groundTruthz, 2));
         //float d2 = (float) Math.sqrt(pow(landmarks[one.anchorIDTwo][0] - groundTruthx, 2) + pow(landmarks[one.anchorIDTwo][1] - groundTruthy, 2) + pow(landmarks[one.anchorIDTwo][2] - groundTruthz, 2));
 
@@ -468,42 +510,33 @@ public class ParticleFilter extends Thread implements Observer{
         TDOAMeasurement two = new TDOAMeasurement();
         two.anchorIDOne = 1;
         two.anchorIDTwo = 3;
-        d1 = euclidianDistance(coordinates, landmarks[two.anchorIDOne]);
-        d2 = euclidianDistance(coordinates, landmarks[two.anchorIDTwo]);
+        d1 = euclidianDistance(coordinates, landmarks[two.anchorIDOne]) + 0.2f;
+        d2 = euclidianDistance(coordinates, landmarks[two.anchorIDTwo]) ;
         //d1 = (float) Math.sqrt(pow(landmarks[two.anchorIDOne][0] - groundTruthx, 2) + pow(landmarks[two.anchorIDOne][1] - groundTruthy, 2) + pow(landmarks[two.anchorIDOne][2] - groundTruthz, 2));
         //d2 = (float) Math.sqrt(pow(landmarks[two.anchorIDTwo][0] - groundTruthx, 2) + pow(landmarks[two.anchorIDTwo][1] - groundTruthy, 2) + pow(landmarks[two.anchorIDTwo][2] - groundTruthz, 2));
 
         two.tdoa = (d1 - d2) / this.getC();
 
-//        TDOAMeasurement three = new TDOAMeasurement();
-//        three.anchorIDOne = 0;
-//        three.anchorIDTwo = 3;
-//        d1 = (float) Math.sqrt(pow(landmarks[three.anchorIDOne][0] - groundTruthx, 2) + pow(landmarks[three.anchorIDOne][1] - groundTruthy, 2) + pow(landmarks[three.anchorIDOne][2] - groundTruthz, 2));
-//        d2 = (float) Math.sqrt(pow(landmarks[three.anchorIDTwo][0] - groundTruthx, 2) + pow(landmarks[three.anchorIDTwo][1] - groundTruthy, 2) + pow(landmarks[three.anchorIDTwo][2] - groundTruthz, 2));
-//
-//        three.tdoa = (d1 - d2) / this.getC();
-
         TDOAMeasurement tdoaMeasurement[] = new TDOAMeasurement[2];
         tdoaMeasurement[0] = one;
         tdoaMeasurement[1] = two;
-        //tdoaMeasurement[2] = three;
-        this.update(tdoaMeasurement, this.getNumberOfParticles());
-        //FileUtils.saveParticles(this.getParticles(), this.topK(this.getWeights(), 100), "top100");
-        int newNum = 0;
-        int j = 10;
-//        while(j-- > 0){
-        for(int i = 0; i < 5; i++){
-            int index[] = this.topK(this.getWeights(), topParticleNumber);
 
-            newNum = this.resampleAndRegenerate(index, this.getNumberOfParticles()/(i+1), 0.5f/(float)Math.pow((i+1),2f));
-            this.update(tdoaMeasurement, newNum);
+        locationEstimationRoutineWithMultipleTdoa(tdoaMeasurement);
+    }
 
-            //this.estimate(topParticleNumber);
-            this.estimateIntermediate();
-            //FileUtils.saveParticles(this.getParticles(), index,"loop"+i);
-        }
-//        }
-        this.estimate(topParticleNumber);
+    void debugWithInput(){
+        TDOAMeasurement one = new TDOAMeasurement();
+        one.anchorIDOne = 2;
+        one.anchorIDTwo = 1;
+        one.tdoa = 0.0018541666f;
+        TDOAMeasurement two = new TDOAMeasurement();
+        two.anchorIDOne = 3;
+        two.anchorIDTwo = 2;
+        two.tdoa = -0.0031458333f;
+        TDOAMeasurement tdoaMeasurement[] = new TDOAMeasurement[2];
+        tdoaMeasurement[0] = one;
+        tdoaMeasurement[1] = two;
+        locationEstimationRoutineWithMultipleTdoa(tdoaMeasurement);
     }
 
     private void debugOneMeasurement(){
@@ -511,8 +544,8 @@ public class ParticleFilter extends Thread implements Observer{
         float groundTruthy = 1.0f;
 
         TDOAMeasurement one = new TDOAMeasurement();
-        one.anchorIDOne = 0;
-        one.anchorIDTwo = 2;
+        one.anchorIDOne = 2;
+        one.anchorIDTwo = 0;
         float d1 = (float) Math.sqrt(pow(landmarks[one.anchorIDOne][0] - groundTruthx, 2) + pow(landmarks[one.anchorIDOne][1] - groundTruthy, 2));
         float d2 = (float) Math.sqrt(pow(landmarks[one.anchorIDTwo][0] - groundTruthx, 2) + pow(landmarks[one.anchorIDTwo][1] - groundTruthy, 2));
 
@@ -537,11 +570,15 @@ public class ParticleFilter extends Thread implements Observer{
         this.estimate(topParticleNumber);
     }
 
+    /**
+     * deprecated method
+     * @param tdoaMeasurements
+     */
     public void locationEstimationRoutineWithMultipleTdoa(TDOAMeasurement []tdoaMeasurements){
         this.update(tdoaMeasurements, this.getNumberOfParticles());
         //FileUtils.saveParticles(this.getParticles(), this.topK(this.getWeights(), 100), "top100");
         int newNum = 0;
-        int j = 10;
+        int j = 5;
         while(j-- > 0) {
             for (int i = 0; i < 5; i++) {
                 int index[] = this.topK(this.getWeights(), topParticleNumber);
@@ -550,9 +587,31 @@ public class ParticleFilter extends Thread implements Observer{
                 //this.estimate(topParticleNumber);
                 this.estimateIntermediate();
                 //FileUtils.saveParticles(this.getParticles(), index,"loop"+i);
+
             }
+            this.estimate(topParticleNumber);
         }
-        this.estimate(topParticleNumber);
+        //this.estimate(topParticleNumber);
+    }
+
+    public void locationEstimationRoutineWithMultipleTdoa(List<TDOAMeasurement> tdoaMeasurements){
+        this.update(tdoaMeasurements, this.getNumberOfParticles());
+        //FileUtils.saveParticles(this.getParticles(), this.topK(this.getWeights(), 100), "top100");
+        int newNum = 0;
+        int j = 5;
+        while(j-- > 0) {
+            for (int i = 0; i < 5; i++) {
+                int index[] = this.topK(this.getWeights(), topParticleNumber);
+                newNum = this.resampleAndRegenerate(index, this.getNumberOfParticles() / (i + 1), 0.5f / (i + 1) / (i + 1));
+                this.update(tdoaMeasurements, newNum);
+                //this.estimate(topParticleNumber);
+                this.estimateIntermediate();
+                //FileUtils.saveParticles(this.getParticles(), index,"loop"+i);
+
+            }
+            this.estimate(topParticleNumber);
+        }
+        //this.estimate(topParticleNumber);
     }
 
     @Override
@@ -561,21 +620,19 @@ public class ParticleFilter extends Thread implements Observer{
         String message;
         CapturedBeaconMessage temp = new CapturedBeaconMessage();
         TDOACalUtil tdoaCalUtil = new TDOACalUtil();
-        TDOAMeasurement tdoaMeasurement = new TDOAMeasurement();
-        TDOAMeasurement[] measurements = new TDOAMeasurement[2];
-        int captured = 0;
+
         int debugIndex = 0;
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");//设置日期格式
         String logFileName = "results/localization_" + df.format(new Date()) + ".txt";
-//        boolean firstMeasurementReady = false;
-//        boolean secondMeasurementReady = false;
-        StringBuilder stringBuilder = new StringBuilder();
+
+//        StringBuilder stringBuilder = new StringBuilder();
+//        int saveSequence = 0;
         while(isParticleThreadAlive){
-            /*if(isTimeToPerformEstimation){
-                isTimeToPerformEstimation = false;
-            }*/
             try{
                 Thread.sleep(10);
+                //debugWithInput();
+//                debugTestCode();
+//                Thread.sleep(2000);
                 if(messageQueue.size() >= 1){
                     // TODO here: run the particle filter iteration here
                     //System.out.println("Receive enough information for particle filter iteration");
@@ -588,7 +645,7 @@ public class ParticleFilter extends Thread implements Observer{
                     if(temp.capturedSequence == ScheduleAnchorThread.getScheduleRound() % 4){
                         temp.capturedSequence = ScheduleAnchorThread.getScheduleRound(); // change the schedule sequence to avoid consistency collision
                     }
-                    //debugOneMeasurement();
+
                     tdoaCalUtil.pushNewBeaconMessage(temp);
 //                    tdoaCalUtil.isBeepBeepReady(1, 2);
 //                    tdoaCalUtil.isBeepBeepReady(1, 2);
@@ -600,27 +657,21 @@ public class ParticleFilter extends Thread implements Observer{
                             debugIndex = 0;
                         }
                         long startTime=System.currentTimeMillis();   //获取开始时间
-                        if(tdoaCalUtil.isTDOAValid(temp.selfAnchorId, ScheduleAnchorThread.getScheduleRound())){
-                            //tdoaMeasurement = tdoaCalUtil.getTdoaMeasurement();
-                            //locationEstimationRoutineWithOneTdoa(tdoaMeasurement);
-                            //System.out.println("get qualified measurements --------------------");
-                            tdoaMeasurement = tdoaCalUtil.getTdoaMeasurement();
-                            measurements[captured++] = (TDOAMeasurement) tdoaMeasurement.clone();
-                            if(captured >= 2){
-                                captured = 0;
-                                locationEstimationRoutineWithMultipleTdoa(measurements);
-
-                                //FileUtils.saveLocalizationResults(getX(), getY(), getZ(),logFileName);
-                                stringBuilder.delete( 0, stringBuilder.length() );
-                                stringBuilder.append(getX()).append("\t").append(getY()).append("\t").append(getZ()).append("\r\n");
-                                FileUtils.saveStringMessage("debug/parameter_"+ScheduleAnchorThread.getScheduleRound()+".txt", stringBuilder.toString());
-                            }
+                        //if(tdoaCalUtil.isTDOAValid(temp.selfAnchorId, 1)){
+                        if(tdoaCalUtil.checkTimestamps(temp.selfAnchorId)){
+                            locationEstimationRoutineWithMultipleTdoa(tdoaCalUtil.getTimestampsList());
+                            //System.out.println("$$$$$$$$$list size = " + tdoaCalUtil.getTimestampsList().size());
+                            //tdoaCalUtil.checkTimestamps(temp.selfAnchorId);
                         }
+//                        if(tdoaCalUtil.isTDOAReady(2, 1, temp.selfAnchorId)){
+//                            //tdoaCalUtil.isTDOAReady(2, 1, temp.selfAnchorId);
+//                        }
                         long endTime=System.currentTimeMillis(); //获取结束时间
-                        System.out.println("程序运行时间*****： "+(endTime-startTime)+"ms");
+                        //System.out.println("程序运行时间*****： "+(endTime-startTime)+"ms");
 
                     }
                 }
+
                     /*debugTestCode();
                     Thread.sleep(1000);
                 FileUtils.saveLocalizationResults(getX(), getY(), getZ(),logFileName);*/
@@ -643,6 +694,6 @@ public class ParticleFilter extends Thread implements Observer{
             messageQueue.add(msg);
         }
         //System.out.println("I am in the particle filter = "+msg);
-        System.out.println(msg);
+        //System.out.println(msg);
     }
 }

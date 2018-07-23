@@ -3,8 +3,7 @@ import org.json.JSONObject;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ScheduleAnchorThread extends Thread {
     // This thread is used to schedule the anchor for signal transmission
@@ -35,7 +34,10 @@ public class ScheduleAnchorThread extends Thread {
             InetAddress destination = InetAddress.getByName("255.255.255.255");
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, destination, portNum);
             schedualInterval = JSONUtils.getScheduleInterval(configFilePath);
-
+            List<Integer> scheduleTurns = new ArrayList<Integer>();
+            for(int j = 0; j < 4; j++){
+                scheduleTurns.add(j);
+            }
             int i = 0;
             while (isScheduleLive){
                 if(isTimeToBroadcastMessage){
@@ -47,19 +49,21 @@ public class ScheduleAnchorThread extends Thread {
 //                    packet.setData(broadcastMessageWrapper(1,3).getBytes());
 //                    serverSocket.send(packet);
 
-                    packet.setData(schedualAnchor(0, sequence % 4).getBytes());
+                    //Collections.shuffle(scheduleTurns);
+
+                    packet.setData(schedualAnchor(scheduleTurns.get(0), sequence % 4).getBytes());
                     serverSocket.send(packet);
                     Thread.sleep(schedualInterval);
 
-                    packet.setData(schedualAnchor(1, sequence % 4).getBytes());
+                    packet.setData(schedualAnchor(scheduleTurns.get(1), sequence % 4).getBytes());
                     serverSocket.send(packet);
                     Thread.sleep(schedualInterval);
 
-                    packet.setData(schedualAnchor(2, sequence % 4).getBytes());
+                    packet.setData(schedualAnchor(scheduleTurns.get(2), sequence % 4).getBytes());
                     serverSocket.send(packet);
                     Thread.sleep(schedualInterval);
 
-                    packet.setData(schedualAnchor(3, sequence % 4).getBytes());
+                    packet.setData(schedualAnchor(scheduleTurns.get(3), sequence % 4).getBytes());
                     serverSocket.send(packet);
                     Thread.sleep(schedualInterval);
                     sequence++;

@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Main {
 
     public static void main(String args[]){
@@ -123,6 +125,7 @@ public class Main {
         log("server started succussfully");
 
     }
+
 
     public static void log(String s){
         System.out.println(s);
