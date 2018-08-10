@@ -210,6 +210,17 @@ public class FileUtils {
         }
     }
 
+    public static void saveBeaconMessage(String fileName, CapturedBeaconMessage capturedBeaconMessage){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(capturedBeaconMessage.selfAnchorId).append("\t")
+                .append(capturedBeaconMessage.capturedAnchorId).append("\t")
+                .append(capturedBeaconMessage.capturedSequence).append("\t")
+                .append(capturedBeaconMessage.looperCounter).append("\t")
+                .append(capturedBeaconMessage.preambleIndex).append("\t")
+                .append(capturedBeaconMessage.speed).append("\n");
+        saveStringMessage(fileName, stringBuilder.toString());
+    }
+
     public static void saveBeaconMessage(String fileName, List<CapturedBeaconMessage> list){
         StringBuilder stringBuilder = new StringBuilder();
         for(CapturedBeaconMessage capturedBeaconMessage : list){

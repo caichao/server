@@ -61,9 +61,9 @@ public class JSONUtils {
         capturedBeaconMessage.capturedSequence = jsonObject.getInt(capturedSequenceString);
         capturedBeaconMessage.preambleIndex = jsonObject.getInt(preambleIndexString);
         capturedBeaconMessage.looperCounter = jsonObject.getLong(looperCounterString);
-//        if(capturedBeaconMessage.selfAnchorId >= 100){
-//            capturedBeaconMessage.speed = (float) jsonObject.getDouble(speedString);
-//        }
+        if(capturedBeaconMessage.selfAnchorId >= 100){
+            capturedBeaconMessage.speed = (float) jsonObject.getDouble(speedString);
+        }
         return  capturedBeaconMessage;
     }
 

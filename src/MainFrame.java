@@ -106,7 +106,7 @@ public class MainFrame extends JFrame implements Runnable{
         }
 
         public void copyTopParticles(int n){
-            int index[] = particleFilter.topK(particleFilter.getWeights(),  n);
+            int index[] = Algorithm.topK(particleFilter.getWeights(),  n);
             for(int i = 0; i < n ; i++){
                 particles[i] = allParticles[index[i]];
             }

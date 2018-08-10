@@ -31,6 +31,7 @@ public class TDOACalUtil {
         timestampsList = new ArrayList<TDOAMeasurement>();
         try {
             this.anchorCoordinates = JSONUtils.loadAnchorPosition("config.txt");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,9 +87,9 @@ public class TDOACalUtil {
             CapturedBeaconMessage one = targetList.get(targetList.size() - 1);
             CapturedBeaconMessage two = targetList.get(targetList.size() - 2);
 
-            if(one.capturedSequence != two.capturedSequence){
-                return false;
-            }
+//            if(one.capturedSequence != two.capturedSequence){
+//                return false;
+//            }
             // get the corresponding anchor list information
             int anchorOne = one.capturedAnchorId;
             int anchorTwo = two.capturedAnchorId;
@@ -122,7 +123,7 @@ public class TDOACalUtil {
 
             float checkDistance = Math.abs(oneValidTdoa - twoValidTdoa) / 2.0f / this.fs * this.c;
             float groundTruthDistance = euclideanDistance(anchorCoordinates[anchorOne], anchorCoordinates[anchorTwo]);
-            if(Math.abs(checkDistance - groundTruthDistance) > 1.0){
+            if(Math.abs(checkDistance - groundTruthDistance) > 0.8){
                 return false;
             }
             this.tdoa = oneValidTdoa / 2 + twoValidTdoa / 2 - targetTdoa;
@@ -149,10 +150,9 @@ public class TDOACalUtil {
             // first retrieve the newest beacon message information
             CapturedBeaconMessage one = targetList.get(targetList.size() - 1);
             CapturedBeaconMessage two = targetList.get(targetList.size() - 2);
-
-            if(one.capturedSequence != two.capturedSequence){
-                return false;
-            }
+//            if(one.capturedSequence != two.capturedSequence){
+//                return false;
+//            }
             // get the corresponding anchor list information
             int anchorOne = one.capturedAnchorId;
             int anchorTwo = two.capturedAnchorId;
@@ -194,6 +194,7 @@ public class TDOACalUtil {
             this.tdoaMeasurement.anchorIDOne = anchorOne;
             this.tdoaMeasurement.anchorIDTwo = anchorTwo;
             this.tdoaMeasurement.tdoa = this.tdoa;
+
             isReady = true;
             /*StringBuilder stringBuilder = new StringBuilder();
 
@@ -201,9 +202,9 @@ public class TDOACalUtil {
                     .append(one.capturedAnchorId).append("\t").append(two.capturedAnchorId).append("\t").append("\n");
             FileUtils.saveStringMessage("debug/looperCounter.txt", stringBuilder.toString());*/
 
-            StringBuilder sb = new StringBuilder();
+            /*StringBuilder sb = new StringBuilder();
             sb.append(checkDistance).append("\t").append(groundTruthDistance).append("\t").append(Math.abs(oneValidTdoa - twoValidTdoa)).append("\t").append(anchorOne).append("\t").append(anchorTwo).append("\n");
-            FileUtils.saveStringMessage("debug/beepbeep.txt", sb.toString());
+            FileUtils.saveStringMessage("debug/beepbeep.txt", sb.toString()); */
 //            stringBuilder.append("oneValideTdoa = ").append(oneValidTdoa).append("\r\n")
 //                    .append("twoValideTdoa = ").append(twoValidTdoa).append("\r\n")
 //                    .append("tdoa = ").append(tdoa).append("\r\n")
@@ -236,7 +237,7 @@ public class TDOACalUtil {
     }
 
     private TDOAMeasurement getTDOAMeasurements(int target, int indexOne, int indexTwo, Map<Integer, List> map){
-        TDOAMeasurement timestamp = new TDOAMeasurement();
+
         List<CapturedBeaconMessage> targetList = map.get(target);
 
         // we should use all the available timestamps for localization
@@ -285,17 +286,19 @@ public class TDOACalUtil {
         }
         long temp = oneValidTdoa / 2 + twoValidTdoa / 2 - targetTdoa;
         this.tdoa = temp * 1.0f / this.fs;
+
+        TDOAMeasurement timestamp = new TDOAMeasurement();
         timestamp.anchorIDOne = anchorOne;
         timestamp.anchorIDTwo = anchorTwo;
         timestamp.tdoa = this.tdoa;
 
-        StringBuilder stringBuilder = new StringBuilder();
+        /*StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(anchorOne).append("\t").append(anchorTwo)
                 .append("\t").append(checkDistance)
                 .append("\t").append(groundTruthDistance)
                 .append("\t").append(this.tdoa * this.c).append("\n");
 
-        FileUtils.saveStringMessage("debug/timestamps.txt", stringBuilder.toString());
+        FileUtils.saveStringMessage("debug/timestamps.txt", stringBuilder.toString()); */
         return  timestamp;
     }
 
@@ -308,7 +311,7 @@ public class TDOACalUtil {
         }
 
         this.timestampsList.clear();
-        for(int i = 0; i < 4; i++){
+        for(int i = 1; i < 4; i++){
             for(int j = i+1; j < 4; j++){
                 TDOAMeasurement validTimestamp = getTDOAMeasurements(target, i, j, copiedBeaconMessageMap);
                 if(validTimestamp != null){
