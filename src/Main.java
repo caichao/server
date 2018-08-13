@@ -1,3 +1,7 @@
+import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
+import org.jb2011.lnf.beautyeye.ch3_button.BEButtonUI;
+
+import javax.swing.*;
 import java.util.Random;
 
 public class Main {
@@ -6,8 +10,23 @@ public class Main {
         ParticleFilter particleFilter = new ParticleFilter(5000);
         new Thread(particleFilter).start();
 
+        try
+        {
+
+            org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
+            BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.osLookAndFeelDecorated;
+           UIManager.put("RootPane.setupButtonVisible", false);
+
+        }
+        catch(Exception e)
+        {
+            //TODO exception
+        }
+
         MainFrame mainFrame = new MainFrame(particleFilter);
         new Thread(mainFrame).start();
+
+
 
         particleFilter.generateUniformParticles();
         /*System.out.println("This is a java test!");

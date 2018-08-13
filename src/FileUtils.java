@@ -213,7 +213,7 @@ public class FileUtils {
     public static void saveBeaconMessage(String fileName, CapturedBeaconMessage capturedBeaconMessage){
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(capturedBeaconMessage.selfAnchorId).append("\t")
-                .append(capturedBeaconMessage.capturedAnchorId).append("\t")
+                .append(capturedBeaconMessage.capturedAnchorId).append("\t")  //anchor x .txt
                 .append(capturedBeaconMessage.capturedSequence).append("\t")
                 .append(capturedBeaconMessage.looperCounter).append("\t")
                 .append(capturedBeaconMessage.preambleIndex).append("\t")
