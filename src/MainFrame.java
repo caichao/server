@@ -1,6 +1,10 @@
+import org.jb2011.lnf.beautyeye.ch3_button.BEButtonUI;
+
 import javax.sound.sampled.Line;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Image;
+import java.awt.event.ActionListener;
 
 public class MainFrame extends JFrame implements Runnable{
 
@@ -10,13 +14,44 @@ public class MainFrame extends JFrame implements Runnable{
     private boolean isThreaAlive = true;
     public MainFrame(ParticleFilter particleFilter){
 
+        //显示当前屏幕分辨率
+        ScreenSize ss=new ScreenSize();
+        int screenWidth=ss.getScreenWidth();
+        int screenHeight=ss.getScreenHeight();
+        System.out.println("屏幕宽为："+screenWidth+"---屏幕高为："+screenHeight);
+
         ImageIcon img = new ImageIcon(imgFilePath);
         //要设置的背景图片
         JLabel imgLabel = new JLabel(img);
-        //将背景图放在标签里。
+        img.setImage(img.getImage().getScaledInstance(1000,574,Image.SCALE_DEFAULT));
+        imgLabel.setIcon(img);
+        //将背景图放在图片标签里。
         this.getLayeredPane().add(imgLabel, new Integer(Integer.MIN_VALUE));
         //将背景标签添加到jfram的LayeredPane面板里。
-        imgLabel.setBounds(0, 0, img.getIconWidth(), img.getIconHeight());
+
+        imgLabel.setBounds(290, 20, 1200, 600);//图片标签(地图区域)的位置和大小
+
+
+        /*
+        * 设置按钮
+        * */
+        JButton LaunchAll = new JButton("launchAll");
+        LaunchAll.setUI(new BEButtonUI().setNormalColor(BEButtonUI.NormalColor.lightBlue));
+        JButton KillAll = new JButton("killAll");
+        KillAll.setUI(new BEButtonUI().setNormalColor(BEButtonUI.NormalColor.lightBlue));
+        this.getLayeredPane().add(LaunchAll);
+        LaunchAll.setBounds(50,50,90,30);
+        this.getLayeredPane().add(KillAll);
+        KillAll.setBounds(50,100,90,30);
+        //加入监听器
+        Listener1 L1 = new Listener1();
+        LaunchAll.addActionListener(L1);
+        Listener2 L2 = new Listener2();
+        KillAll.addActionListener(L2);
+
+
+
+
 
         //this.getLayeredPane().add(new MyPanel2(), new Integer(Integer.MIN_VALUE));
 
@@ -33,11 +68,39 @@ public class MainFrame extends JFrame implements Runnable{
 
         this.setVisible(true);
         this.setResizable(false);
-        this.setSize(img.getIconWidth(),img.getIconHeight());
+        //this.setSize(1500,800);//整个窗体的大小
+        this.setBounds(0,0,1440,900);
         this.setTitle("Asynchronous Localization Project: by cc at HUST");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);//指定界面默认关闭选项  EXIT_ON_CLOSE为关闭时退出程序
-        this.setLocationRelativeTo(null);// 把窗口位置设置到屏幕的中心
+        //this.setLocationRelativeTo(null);// 把窗口位置设置到屏幕的中心
     }
+
+
+
+    /*
+     * 给按钮创建监听器
+     * */
+    class Listener1 implements ActionListener {
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+            System.out.println("666");
+            ButtonThread buttonThread1 = new ButtonThread(ButtonThread.launchAll);
+            buttonThread1.start();
+
+        }
+    }
+
+    class Listener2 implements ActionListener {
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+            System.out.println("777");
+            ButtonThread buttonThread2 = new ButtonThread(ButtonThread.killAll);
+            buttonThread2.start();
+        }
+    }
+
+
+
 
     public void refresh(){
 
@@ -263,3 +326,28 @@ public class MainFrame extends JFrame implements Runnable{
     }
 }
 
+
+//以下代码用于显示当前屏幕分辨率
+class ScreenSize {
+    private int screenWidth;
+    private int screenHeight;
+
+    public int getScreenWidth() {
+
+        setScreenWidth(java.awt.Toolkit.getDefaultToolkit().getScreenSize().width);
+        return screenWidth;
+    }
+
+    public void setScreenWidth(int screenWidth) {
+        this.screenWidth = screenWidth;
+    }
+
+    public int getScreenHeight() {
+        setScreenHeight(java.awt.Toolkit.getDefaultToolkit().getScreenSize().height);
+        return screenHeight;
+    }
+
+    public void setScreenHeight(int screenHeight) {
+        this.screenHeight = screenHeight;
+    }
+}
