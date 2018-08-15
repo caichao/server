@@ -5,5 +5,5 @@
 "anchor3":{"x":"4.623", "y":"2.662", "z":"1.959"},
 "scale": "150",
 "targetHeight":"1.608",
-"scheduleInterval":"2000"
+"scheduleInterval":"500"
 }

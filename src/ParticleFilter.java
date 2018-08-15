@@ -40,7 +40,11 @@ public class ParticleFilter extends Thread implements Observer{
     private int scheduleInterval = 0;
     // decoding uploaded information
     JSONUtils jsonUtils = null;
+    MainFrame mainFrame = null;
 
+    public void setMainFrame(MainFrame mainFrame){
+        this.mainFrame = mainFrame;
+    }
 
     public void setSubject(Subject subject){
         this.subject = subject;
@@ -635,5 +639,12 @@ public class ParticleFilter extends Thread implements Observer{
         }
         //System.out.println("I am in the particle filter = "+msg);
         System.out.println(msg);
+        try {
+            CapturedBeaconMessage beaconMessage = jsonUtils.decodeCapturedBeaconMessage(msg);
+            mainFrame.getCapturedBeaconMessage(beaconMessage);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

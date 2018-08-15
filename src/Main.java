@@ -26,7 +26,7 @@ public class Main {
         MainFrame mainFrame = new MainFrame(particleFilter);
         new Thread(mainFrame).start();
 
-
+        particleFilter.setMainFrame(mainFrame);
 
         particleFilter.generateUniformParticles();
         /*System.out.println("This is a java test!");
