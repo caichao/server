@@ -41,6 +41,7 @@ public class ParticleFilter extends Thread implements Observer{
     // decoding uploaded information
     JSONUtils jsonUtils = null;
 
+
     public void setSubject(Subject subject){
         this.subject = subject;
         subject.addObserver(this);
@@ -101,6 +102,7 @@ public class ParticleFilter extends Thread implements Observer{
         float maxXCoordinates = 0;
         float maxYCoordinates = 0;
         float maxZCoordinates = 0;
+
         for(int i = 0; i < landmarks.length; i++){
             if(landmarks[i][0] > maxXCoordinates){
                 maxXCoordinates = landmarks[i][0];
@@ -109,7 +111,9 @@ public class ParticleFilter extends Thread implements Observer{
                 maxYCoordinates = landmarks[i][1];
             }
         }
+
         generateUniformParticles(maxXCoordinates, maxYCoordinates);
+        //generateUniformParticles(8, 5);
     }
 
     /**

@@ -4,11 +4,12 @@ import javax.sound.sampled.Line;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class MainFrame extends JFrame implements Runnable{
+public class MainFrame extends JFrame implements Runnable,ActionListener{
 
-    private String imgFilePath = "images/map1.jpg";
+    //private String imgFilePath = "images/map1.jpg";
     private DrawParticles drawParticles = null;
     private ParticleFilter particleFilter = null;
     private boolean isThreaAlive = true;
@@ -20,16 +21,17 @@ public class MainFrame extends JFrame implements Runnable{
         int screenHeight=ss.getScreenHeight();
         System.out.println("屏幕宽为："+screenWidth+"---屏幕高为："+screenHeight);
 
-        ImageIcon img = new ImageIcon(imgFilePath);
+        //ImageIcon img = new ImageIcon(imgFilePath);
         //要设置的背景图片
-        JLabel imgLabel = new JLabel(img);
-        img.setImage(img.getImage().getScaledInstance(1000,574,Image.SCALE_DEFAULT));
-        imgLabel.setIcon(img);
+        JLabel imgLabel = new JLabel();
+        //img.setImage(img.getImage().getScaledInstance(1000,574,Image.SCALE_DEFAULT));
+        //imgLabel.setIcon(img);
         //将背景图放在图片标签里。
         this.getLayeredPane().add(imgLabel, new Integer(Integer.MIN_VALUE));
         //将背景标签添加到jfram的LayeredPane面板里。
 
-        imgLabel.setBounds(290, 20, 1200, 600);//图片标签(地图区域)的位置和大小
+        //imgLabel.setBounds(290, 20, screenWidth, screenHeight);//图片标签(地图区域)的位置和大小
+
 
 
         /*
@@ -40,9 +42,9 @@ public class MainFrame extends JFrame implements Runnable{
         JButton KillAll = new JButton("killAll");
         KillAll.setUI(new BEButtonUI().setNormalColor(BEButtonUI.NormalColor.lightBlue));
         this.getLayeredPane().add(LaunchAll);
-        LaunchAll.setBounds(50,50,90,30);
+        LaunchAll.setBounds(1200,50,90,30);
         this.getLayeredPane().add(KillAll);
-        KillAll.setBounds(50,100,90,30);
+        KillAll.setBounds(1200,100,90,30);
         //加入监听器
         Listener1 L1 = new Listener1();
         LaunchAll.addActionListener(L1);
@@ -69,13 +71,17 @@ public class MainFrame extends JFrame implements Runnable{
         this.setVisible(true);
         this.setResizable(false);
         //this.setSize(1500,800);//整个窗体的大小
-        this.setBounds(0,0,1440,900);
+        this.setBounds(0,0,screenWidth,screenHeight);
         this.setTitle("Asynchronous Localization Project: by cc at HUST");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);//指定界面默认关闭选项  EXIT_ON_CLOSE为关闭时退出程序
         //this.setLocationRelativeTo(null);// 把窗口位置设置到屏幕的中心
     }
 
+    @Override//信号灯事件
+    public void actionPerformed(ActionEvent e) {
 
+
+    }
 
     /*
      * 给按钮创建监听器
@@ -124,17 +130,29 @@ public class MainFrame extends JFrame implements Runnable{
         ParticleFilter particleFilter = null;
         BasicStroke basicStroke = null;       // 笔画的轮廓（画笔宽度/线宽为3px）
         BasicStroke boldStroke = null;
+        float scale = 185;
         float[][] particles = null;
         float[][] allParticles = null;
+
         int numberOfParticles = ParticleFilter.topParticleNumber;
-        float scale = 100;
+
         {
+            /*
             try {
                 scale = JSONUtils.getMapGUIScaleCoefficient("config.txt");
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            */
         }
+
+        int originX = 35;               //原点的x
+        int originY = 520;              //原点的y
+        int xAxisLength = 900;         //X轴长度
+        int yAxisLength = 510;          //Y轴长度
+        int xInerAxis = (int)(getMaxXCoordinates()*scale);
+        int yInerAxis = (int)(getMaxYCoordinates()*scale);
+
         Font font = null;
 
         /*public DrawParticles(){ // for debug test
@@ -152,6 +170,48 @@ public class MainFrame extends JFrame implements Runnable{
             repaint();
         }
 
+        public float getMaxXCoordinates()
+        {
+            float maxXCoordinates = 0;
+            float landmarks[][] = null;
+            JSONUtils jsonUtils = null;
+            String configFilePath = "config.txt";
+            try {
+                landmarks = jsonUtils.loadAnchorPosition(configFilePath);
+            }catch(Exception e){
+
+            }
+            for(int i = 0; i < landmarks.length; i++){
+                if(landmarks[i][0] > maxXCoordinates){
+                    maxXCoordinates = landmarks[i][0];
+                }
+            }
+            return maxXCoordinates;//4.623
+        }
+
+        public float getMaxYCoordinates()
+        {
+            float maxYCoordinates = 0;
+            float landmarks[][] = null;
+            JSONUtils jsonUtils = null;
+            String configFilePath = "config.txt";
+            try {
+                landmarks = jsonUtils.loadAnchorPosition(configFilePath);
+            }catch(Exception e){
+
+            }
+            for(int i = 0; i < landmarks.length; i++){
+                if(landmarks[i][1] > maxYCoordinates){
+                    maxYCoordinates = landmarks[i][1];
+                }
+
+            }
+            return maxYCoordinates;//2.662
+        }
+
+
+
+
         public DrawParticles(ParticleFilter particleFilter){
             this.particleFilter = particleFilter;
             this.setOpaque(false);
@@ -161,7 +221,7 @@ public class MainFrame extends JFrame implements Runnable{
         public void initDrawingParameters(){
             basicStroke = new BasicStroke(3);
             boldStroke = new BasicStroke(5);
-            font = new Font("宋体",Font.BOLD,40);
+            font = new Font("宋体",Font.BOLD,15);
             //particles = particleFilter.getParticles().clone(); // deep copy
             //int index[] = particleFilter.topK(particleFilter.getWeights(), numberOfParticles);
             particles = new float[numberOfParticles][2];
@@ -183,7 +243,7 @@ public class MainFrame extends JFrame implements Runnable{
 
             g2.setStroke(basicStroke);
             g2.setColor(Color.WHITE);
-            // first erase the last particles
+            // first erase the last particles 擦除旧点
             if(particles != null) {
                 for (int i = 0; i < this.particles.length; i++) {
                     drawPoints(particles[i][0], particles[i][1], g2);
@@ -191,8 +251,7 @@ public class MainFrame extends JFrame implements Runnable{
             }
 
             copyTopParticles(numberOfParticles);
-            // second draw the new particles
-            //particles = particleFilter.getParticles().clone();
+            // second draw the new particles  画新点
             g2.setColor(Color.RED);
             for(int i = 0; i < particles.length ; i++){
                 drawPoints(particles[i][0], particles[i][1], g2);
@@ -201,130 +260,117 @@ public class MainFrame extends JFrame implements Runnable{
             // draw the estimated locations
             g2.setColor(Color.GREEN);
             g2.setStroke(boldStroke);
-            drawEstimatedLocation(particleFilter.getX(), particleFilter.getY(), g2);
+            //drawEstimatedLocation(, 1, g2);画估计点
+            drawEstimatedLocation(particleFilter.getX(),particleFilter.getY(),g2);
+            //画坐标轴
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(2.0f));
+            drawAxis(originX,originY,g2);
+
+            //用虚线画上下边界
+            g2.setColor(Color.CYAN);
+            //g2.setStroke(new BasicStroke(2.0f));
+            Stroke dash = new BasicStroke(2.5f, BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_ROUND, 3.5f, new float[] { 5, 5, },
+                    0f);
+            g2.setStroke(dash);
+            drawBorder(originX,originY,g2);
 
             // add labels for the estimated locations
             g2.setColor(Color.BLUE);
 
-            drawLabels(particleFilter.getX(), particleFilter.getY(), String.format("x = %.2f y = %.2f \r\n z = %.2f", particleFilter.getX(), particleFilter.getY(), particleFilter.getZ()), g2);
+            drawLabels(particleFilter.getX(), particleFilter.getY(), String.format("当前位置："+"x = %.2f y = %.2f \r\n z = %.2f", particleFilter.getX(), particleFilter.getY(), particleFilter.getZ()), g2);
+
+            //画Anchor
+            g2.setColor(Color.MAGENTA);
+            g2.setStroke(new BasicStroke(1.5f));
+            drawAnchor(20,g2);
+
+
             repaint();
         }
 
+        //画点
         public void drawPoints(float x, float y, Graphics2D g){
-            g.drawLine((int)(x * scale), (int)(y * scale), (int)(x * scale), (int)(y * scale));
+            g.drawLine((int)(x * scale+originX), (int)(originY-y * scale), (int)(x * scale+originX), (int)(originY-y * scale));
         }
-
+        /*
         public void drawEstimatedLocation(float x, float y, Graphics2D g){
             g.drawLine((int)(x * scale) - 5,(int)(y * scale), (int)(x * scale)+5,(int)(y * scale));
             g.drawLine((int)(x * scale), (int)(y * scale)+5, (int)(x * scale), (int)(y * scale)-5);
         }
+        */
 
+        //画估计位置
+        public void drawEstimatedLocation(float x, float y, Graphics2D g){
+            g.drawLine((int)(x+originX) - 5,(int)(originY-y), (int)(x+originX)+5,(int)(originY-y));
+            g.drawLine((int)(x+originX), (int)(originY-y)+5, (int)(x+originX), (int)(originY-y)-5);
+        }
+
+        public void drawAxis(float x, float y, Graphics2D g)
+        {
+            drawAxisX(x,y,g);
+            drawAxisY(x,y,g);
+        }
+
+        //画x轴
+        public void drawAxisX ( float x, float y, Graphics2D g)
+        {
+            g.drawLine((int) x, (int) y, (int) x + xAxisLength, (int) y);
+            g.drawLine((int) x+xAxisLength, (int) y, (int) x + xAxisLength-5, (int) y-2);
+            g.drawLine((int) x+xAxisLength, (int) y, (int) x + xAxisLength-5, (int) y+2);
+            g.setFont(new Font("宋体",Font.BOLD,20));
+            g.drawString("X",(int) x + xAxisLength+5, (int) y);
+
+        }
+        //画y轴
+        public void drawAxisY ( float x, float y, Graphics2D g)
+        {
+            g.drawLine((int) x, (int) y, (int) x , (int) y-yAxisLength);
+            g.drawLine((int) x, (int) y-yAxisLength, (int) x-2 , (int) y-yAxisLength+5);
+            g.drawLine((int) x, (int) y-yAxisLength, (int) x+2 , (int) y-yAxisLength+5);
+            g.setFont(new Font("宋体",Font.BOLD,20));
+            g.drawString("Y",(int) x-15 , (int) y-yAxisLength+5);
+        }
+
+        //画上右边界
+        public void drawBorder(float x, float y, Graphics2D g)
+        {
+            g.drawLine((int) x+2 , (int) y-yInerAxis, (int) x + xInerAxis, (int) y-yInerAxis);//上边界
+            g.drawLine((int) x + xInerAxis, (int) y, (int) x + xInerAxis, (int) y-yInerAxis);//右边界
+            g.setFont(new Font("宋体",Font.BOLD,15));
+            g.setColor(Color.black);
+            g.drawString(String.valueOf(getMaxXCoordinates())+"m",(int) x-13 + xInerAxis,originY+16);
+            g.drawString(String.valueOf(getMaxYCoordinates())+"m",originX+3,(int) y-yInerAxis-5);
+        }
+
+            //画坐标标签
         public void drawLabels(float x, float y, String msg, Graphics2D g){
             g.setFont(font);
-            g.drawString(msg, (int)(x * scale) + 20, (int)(y * scale) + 20);
+            g.drawString(msg, 1000,500 );
         }
-    }
 
-    //重写容器类，比如JPanel类的PaintCoponent()方法绘制图形
-    class BackgroundPannel extends JPanel {
-        Image img;
-        public BackgroundPannel(Image img){
-            this.img = img;
-            this.setOpaque(false);//设置透明度
-        }
-        //绘制容器
-        public void PaintCoponent(Graphics g)
+        //画Anchor
+        public void drawAnchor(int r,Graphics2D g)
         {
-            super.paintComponent(g);//获取父类原来的绘制组件的方法
-            //第一个参数是要作为背景的图片，第2/3代表开始坐标，第4/5代表图片的宽度和高度
-            g.drawImage(img,0,0,this.getWidth(),this.getHeight(),this);
-        }
-    }
+            float landmarks[][] = null;
+            JSONUtils jsonUtils = null;
+            String configFilePath = "config.txt";
+            try {
+                landmarks = jsonUtils.loadAnchorPosition(configFilePath);
+            }catch(Exception e){
 
-    // for debug test
-    class MyPanel2 extends JPanel{
-        //定义一个乌龟
-        Tortoise t = null;
+            }
+            String ss[] = new String[]{"0","1","2","3"};
+            for(int i =0;i<4;i++) {
+                g.drawRect((int) (landmarks[i][0]*scale+originX-r/2), (int)(originY-landmarks[i][1]*scale-r/2), r, r);
+                g.drawString(ss[i],(landmarks[i][0]*scale+originX)+r/4-r/2,(originY-landmarks[i][1]*scale)+r-4-r/2);
+            }
 
-        //构造函数
-        public MyPanel2(){
-            t = new  Tortoise(100,100);
-            this.setOpaque(false);//设置透明度，this is of vital importance
-        }
-
-        //画乌龟
-        public void drawTortoise(int x, int y, Graphics g){
-            //1.画脸
-            g.setColor(Color.green);
-            g.fillOval(x+60, y, 30, 15);
-            //2.画左眼
-            g.setColor(Color.black);
-            g.fillOval(x+65, y+3, 5, 5);
-            //3.画右眼
-            g.fillOval(x+78, y+3, 5, 5);
-            //4.画脖子
-            g.setColor(Color.green);
-            g.fillOval(x+70, y, 10, 42);
-            //5.画乌龟壳
-            g.setColor(Color.red);
-            g.fillOval(x+40, y+40, 70, 100);
-            //6.画左上脚
-            g.setColor(Color.green);
-            g.fillOval(x+15, y+60, 30, 10);
-            //7.画右上脚
-            g.fillOval(x+105, y+60, 30, 10);
-            //8.画左下脚
-            g.fillOval(x+15, y+110, 30, 10);
-            //9.画右下脚
-            g.fillOval(x+105, y+110, 30, 10);
-            //10.画尾巴
-            g.setColor(Color.black);
-            g.drawLine(x+70,y+140,x+130,y+210);
-            g.drawOval(x+95, y+150, 30, 30);
-        }
-
-
-        //覆盖JPanel的paint方法
-        //Graphics 是绘图的重要类。你可以把他理解成一只画笔
-        public void paint(Graphics g){
-            //1.调用父类函数完成初始化任务
-            //这句话不能少
-            super.paint(g);
-            //2.画乌龟，调用方法即可
-            this.drawTortoise(50, 50, g);
-        }
-
-    }
-
-    //定义一个乌龟类
-    class Tortoise {
-        //表示乌龟的横坐标
-        int x = 0;
-
-        //表示乌龟的纵坐标
-        int y = 0;
-
-        public int getX() {
-            return x;
-        }
-
-        public void setX(int x) {
-            this.x = x;
-        }
-
-        public int getY() {
-            return y;
-        }
-
-        public void setY(int y) {
-            this.y = y;
-        }
-        public Tortoise(int x, int y){
-            this.x = x;
-            this.y = y;
         }
     }
 }
+
 
 
 //以下代码用于显示当前屏幕分辨率
@@ -351,3 +397,50 @@ class ScreenSize {
         this.screenHeight = screenHeight;
     }
 }
+
+
+
+
+
+/*
+* 信号灯控制类
+* */
+
+class BulbControl extends JPanel {
+
+    private SignalLight[] light = new SignalLight[3];
+    private int controlMode;
+    private final Color[][] color = { {Color.GREEN, Color.YELLOW, Color.RED}, {Color.RED, Color.YELLOW, Color.GREEN} };
+    private int currentLight;
+
+    public BulbControl(int controlMode) {
+        this.setOpaque(true);//设为透明
+        this.setLayout(new GridLayout(3, 1));
+        for(int i = 0; i < 3; i++) {
+            light[i] = new SignalLight();
+            light[i].setOff();
+            this.add(light[i]);
+        }
+        currentLight = 0;
+        light[currentLight].setOn(color[controlMode][currentLight]);
+
+    }
+
+
+    class SignalLight extends JLabel {
+
+        public SignalLight() {
+            this.setOpaque(true);
+            this.setPreferredSize(new Dimension(80, 80));
+            this.setFont(new Font("MS 明朝", Font.BOLD, 60));
+            this.setText("●");//■
+        }
+        public void setOn(Color color) {
+            this.setForeground(color);
+        }
+        public void setOff() {
+            this.setForeground(this.getBackground());
+        }
+    }
+}
+
