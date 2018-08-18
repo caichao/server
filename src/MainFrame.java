@@ -62,6 +62,31 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
 
 
         Container contain = this.getContentPane();
+
+
+
+        /*
+        * 画出anchor状态区域
+        * */
+        JPanel showFrame = new JPanel();
+        showFrame.setLayout(null);
+        showFrame.setBounds(1000,300,500,500);
+        showFrame.setBackground(Color.white);
+        this.getLayeredPane().add(showFrame);
+//            g.setStroke(new BasicStroke(1f));
+//            g.setFont(new   java.awt.Font("Dialog",   3,   15));
+//            g.setColor(Color.BLACK);
+//            g.drawString("Anchor state",1150,140);
+//            g.drawString("Anchor_0:",1000,180);
+//            g.drawString("Anchor_1:",1000,230);
+//            g.drawString("Anchor_2:",1000,280);
+//            g.drawString("Anchor_3:",1000,330);
+
+
+
+
+
+
         /*
         * 画出参数编辑区域
         * */
@@ -235,7 +260,7 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
 
 
 
-        JButton config = new JButton("Config");
+        JButton config = new JButton("Save");
         config.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 ParamConfig.writeText();
@@ -252,9 +277,6 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
                 //tip.setBorder(BorderFactory.createRaisedBevelBorder());
                 dialogFrame.add(tip);
 
-//                JPanel temp = new JPanel();
-//                temp.setBounds(250,150,100,50);
-//                dialogFrame.add(temp);
 
                 JButton ok = new JButton("OK");
                 ok.setBounds(63,40,60,20);
@@ -277,6 +299,37 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
 
 
         JButton load = new JButton("Load");
+
+        load.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ParamConfig.loadText();
+                JFrame dialogFrame = new  JFrame("提示");
+                dialogFrame.setBounds(600,400,250,150);
+                dialogFrame.setResizable(false);
+                dialogFrame.setLayout(null);
+                dialogFrame.setVisible(true);
+
+
+                JLabel tip = new JLabel("获取参数成功!");
+                tip.setBounds(52,10,90,20);
+                tip.setFont(new   java.awt.Font("Dialog",   2,   14));
+                //tip.setBorder(BorderFactory.createRaisedBevelBorder());
+                dialogFrame.add(tip);
+
+
+                JButton ok = new JButton("OK");
+                ok.setBounds(63,40,60,20);
+                ok.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        dialogFrame.dispose();
+                    }
+                });
+                dialogFrame.add(ok);
+
+
+            }
+        });
+
         paramConfig.add(load);
         load.setBounds(522,201,100,30);
         load.setFont(new   java.awt.Font("Dialog",   2,   18));
@@ -555,8 +608,8 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
 
             // add labels for the estimated locations
             g2.setColor(Color.BLUE);
-
-            drawLabels(particleFilter.getX(), particleFilter.getY(), String.format("当前位置：" + "x = %.2f y = %.2f \r\n z = %.2f", particleFilter.getX(), particleFilter.getY(), particleFilter.getZ()), g2);
+            g2.setFont(new   java.awt.Font("Dialog",   2,   18));
+            drawLabels(particleFilter.getX(), particleFilter.getY(), String.format( "x = %.2f y = %.2f \r\n z = %.2f", particleFilter.getX(), particleFilter.getY(), particleFilter.getZ()), g2);
 
             //画Anchor
             g2.setColor(Color.BLACK);
@@ -689,13 +742,19 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
 
 
         public void initAnchorState(Graphics2D g){
-            g.setFont(new Font("宋体", Font.BOLD, 20));
-            g.setColor(Color.BLACK);
-            g.drawString("Anchor state",1150,140);
-            g.drawString("Anchor_0:",1000,180);
-            g.drawString("Anchor_1:",1000,230);
-            g.drawString("Anchor_2:",1000,280);
-            g.drawString("Anchor_3:",1000,330);
+            //g.setFont(new Font("宋体", Font.BOLD, 20));
+
+//            g.setStroke(new BasicStroke(1f));
+//            g.setFont(new   java.awt.Font("Dialog",   3,   15));
+//            g.setColor(Color.BLACK);
+//            g.drawString("Anchor state",1150,140);
+//            g.drawString("Anchor_0:",1000,180);
+//            g.drawString("Anchor_1:",1000,230);
+//            g.drawString("Anchor_2:",1000,280);
+//            g.drawString("Anchor_3:",1000,330);
+
+
+
             g.setFont(new Font("宋体", Font.BOLD, 40));
             g.setColor(Color.red);
             for(int i =0;i<4;i++){

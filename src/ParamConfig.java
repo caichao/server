@@ -1,9 +1,7 @@
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class ParamConfig {
-    static File f=new File("e:/文本框.txt");//向指定文本框内写入
+    static File f = new File("e:/文本框.txt");//向指定文本框内写入
 
 
 
@@ -64,13 +62,33 @@ public class ParamConfig {
 
 
 
-    public void readTxt(File file){
+    public static void loadText(){
         try{
-            File f=new File("e:/文本框.txt");//向指定文本框内写入
-
-        }catch(Exception e){
+            float [][] anchorLocation = JSONUtils.loadAnchorPosition("e:/文本框1.txt");
+            MainFrame.textx0.setText(""+anchorLocation[0][0]);
+            MainFrame.texty0.setText(""+anchorLocation[0][1]);
+            MainFrame.textz0.setText(""+anchorLocation[0][2]);
+            MainFrame.textx1.setText(""+anchorLocation[1][0]);
+            MainFrame.texty1.setText(""+anchorLocation[1][1]);
+            MainFrame.textz1.setText(""+anchorLocation[1][2]);
+            MainFrame.textx2.setText(""+anchorLocation[2][0]);
+            MainFrame.texty2.setText(""+anchorLocation[2][1]);
+            MainFrame.textz2.setText(""+anchorLocation[2][2]);
+            MainFrame.textx3.setText(""+anchorLocation[3][0]);
+            MainFrame.texty3.setText(""+anchorLocation[3][1]);
+            MainFrame.textz3.setText(""+anchorLocation[3][2]);
+            MainFrame.scaleText.setText(""+JSONUtils.getMapGUIScaleCoefficient("e:/文本框1.txt"));
+            MainFrame.heightText.setText(""+JSONUtils.getTargetHeigh("e:/文本框1.txt"));
+            MainFrame.intervalText.setText(""+JSONUtils.getScheduleInterval("e:/文本框1.txt"));
+        }catch (Exception e){
+        }
 
         }
     }
 
-}
+
+
+
+
+
+
