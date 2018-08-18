@@ -24,7 +24,22 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
     CapturedBeaconMessage capturedBeaconMessage = null;
     private volatile boolean isNewMessageCome = false;
     boolean[] isAnchorWorking = new boolean[]{false,false,false,false};
-
+    static JTextField textx0 = new JTextField();//x0
+    static JTextField texty0 = new JTextField();//y0
+    static JTextField textz0 = new JTextField();//z0
+    static JTextField textx1 = new JTextField();//x1
+    static JTextField texty1 = new JTextField();//y1
+    static JTextField textz1 = new JTextField();//z1
+    static JTextField textx2 = new JTextField();//x2
+    static JTextField texty2 = new JTextField();//y2
+    static JTextField textz2 = new JTextField();//z2
+    static JTextField textx3 = new JTextField();//x3
+    static JTextField texty3 = new JTextField();//y3
+    static JTextField textz3 = new JTextField();//z3
+    static JTextField scaleText = new JTextField();  //scale
+    static JTextField heightText = new JTextField();  //height
+    static JTextField intervalText = new JTextField();  //interval
+    //textx0.setText()
 
     public MainFrame(ParticleFilter particleFilter) {
 
@@ -51,170 +66,227 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
         * 画出参数编辑区域
         * */
         JPanel paramConfig = new JPanel();
-        paramConfig.setBackground(Color.gray);
+        paramConfig.setBackground(Color.white);
         paramConfig.setLayout(new GridLayout());
-        paramConfig.setBounds(50,560,700,252);
+        paramConfig.setBounds(50,560,640,252);
+        paramConfig.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.black) );
         this.getLayeredPane().add(paramConfig);
         paramConfig.setLayout(null);
 
-        JButton j1 = new JButton("Location");
-        paramConfig.add(j1);
-        //j1.setSize(50,30);
-        j1.setUI(new BEButtonUI().setNormalColor(BEButtonUI.NormalColor.lightBlue));
-        j1.setBounds(new Rectangle(1, 1, 100, 50));
+        JLabel location = new JLabel("Location",JLabel.CENTER);
+        paramConfig.add(location);
+        location.setFont(new   java.awt.Font("Dialog",   2,   20));
+        location.setBounds(5,5,100,30);
+        location.setBorder(BorderFactory.createRaisedBevelBorder());
 
 
-        JTextArea x = new JTextArea("    X");
-        x.setEditable(false);
+
+//        JTextField j1 = new JTextField("Location");
+//        j1.setEditable(false);
+//        paramConfig.add(j1);
+//        //j1.setSize(50,30);
+//        //j1.setUI(new BEButtonUI().setNormalColor(BEButtonUI.NormalColor.lightBlue));
+//        j1.setBounds(new Rectangle(5, 10, 100, 30));
+
+
+        JLabel x = new JLabel("X",JLabel.CENTER);
+        x.setFont(new   java.awt.Font("Dialog",   1,   15));
         paramConfig.add(x);
-        x.setBounds(new Rectangle(101, 1, 100, 50));
+        //x.setBorder(BorderFactory.createRaisedBevelBorder());
+        x.setBounds(new Rectangle(118, 10, 50, 20));
 
 
-        JTextArea y = new JTextArea("    Y");
-        y.setEditable(false);
+        JLabel y = new JLabel("Y",JLabel.CENTER);
+        y.setFont(new   java.awt.Font("Dialog",   1,   15));
         paramConfig.add(y);
-        y.setBounds(new Rectangle(201, 1, 100, 50));
+        //y.setBorder(BorderFactory.createRaisedBevelBorder());
+        y.setBounds(new Rectangle(218, 10, 50, 20));
 
-        JTextArea z = new JTextArea("    Z");
-        z.setEditable(false);
+        JLabel z = new JLabel("Z",JLabel.CENTER);
+        z.setFont(new   java.awt.Font("Dialog",   1,   15));
         paramConfig.add(z);
-        z.setBounds(new Rectangle(301, 1, 100, 50));
+        //z.setBorder(BorderFactory.createRaisedBevelBorder());
+        z.setBounds(new Rectangle(318, 10, 50, 20));
 
-        JTextArea anchorItem0 = new JTextArea("anchor 0");
-        anchorItem0.setEditable(false);
+        JLabel anchorItem0 = new JLabel("anchor 0",JLabel.CENTER);
         paramConfig.add(anchorItem0);
-        anchorItem0.setBounds(new Rectangle(1, 51, 100, 50));
+        anchorItem0.setFont(new   java.awt.Font("Dialog",   1,   13));
+        //anchorItem0.setBorder(BorderFactory.createRaisedBevelBorder());
+        anchorItem0.setBounds(new Rectangle(10, 51, 80, 30));
 
-        JTextField textx0 = new JTextField();//x0
+        //JTextField textx0 = new JTextField();//x0
         paramConfig.add(textx0);
-        textx0.setBounds(101,51,100,50);
+        textx0.setBounds(101,51,85,30);
         textx0.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField texty0 = new JTextField();//y0
+        //JTextField texty0 = new JTextField();//y0
         paramConfig.add(texty0);
-        texty0.setBounds(201,51,100,50);
+        texty0.setBounds(201,51,85,30);
         texty0.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField textz0 = new JTextField();//z0
+        //JTextField textz0 = new JTextField();//z0
         paramConfig.add(textz0);
-        textz0.setBounds(301,51,100,50);
+        textz0.setBounds(301,51,85,30);
         textz0.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextArea anchorItem1 = new JTextArea("anchor 1");
-        anchorItem1.setEditable(false);
+        JLabel anchorItem1 = new JLabel("anchor 1",JLabel.CENTER);
         paramConfig.add(anchorItem1);
-        anchorItem1.setBounds(1,101,100,50);
+        anchorItem1.setFont(new   java.awt.Font("Dialog",   1,   13));
+        //anchorItem1.setBorder(BorderFactory.createRaisedBevelBorder());
+        anchorItem1.setBounds(10,101,80,30);
 
-        JTextField textx1 = new JTextField();//x1
+        //JTextField textx1 = new JTextField();//x1
         paramConfig.add(textx1);
-        textx1.setBounds(101,101,100,50);
+        textx1.setBounds(101,101,85,30);
         textx1.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField texty1 = new JTextField();//y1
+        //JTextField texty1 = new JTextField();//y1
         paramConfig.add(texty1);
-        texty1.setBounds(201,101,100,50);
+        texty1.setBounds(201,101,85,30);
         texty1.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField textz1 = new JTextField();//z1
+        //JTextField textz1 = new JTextField();//z1
         paramConfig.add(textz1);
-        textz1.setBounds(301,101,100,50);
+        textz1.setBounds(301,101,85,30);
         textz1.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextArea anchorItem2 = new JTextArea("anchor 2");
-        anchorItem2.setEditable(false);
+        JLabel anchorItem2 = new JLabel("anchor 2",JLabel.CENTER);
         paramConfig.add(anchorItem2);
-        anchorItem2.setBounds(1,151,100,50);
+        anchorItem2.setFont(new   java.awt.Font("Dialog",   1,   13));
+        //anchorItem2.setBorder(BorderFactory.createRaisedBevelBorder());
+        anchorItem2.setBounds(10,151,80,30);
 
-        JTextField textx2 = new JTextField();//x2
+        //JTextField textx2 = new JTextField();//x2
         paramConfig.add(textx2);
-        textx2.setBounds(101,151,100,50);
+        textx2.setBounds(101,151,85,30);
         textx2.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField texty2 = new JTextField();//y2
+        //JTextField texty2 = new JTextField();//y2
         paramConfig.add(texty2);
-        texty2.setBounds(201,151,100,50);
+        texty2.setBounds(201,151,85,30);
         texty2.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField textz2= new JTextField();//z2
+        //JTextField textz2= new JTextField();//z2
         paramConfig.add(textz2);
-        textz2.setBounds(301,151,100,50);
+        textz2.setBounds(301,151,85,30);
         textz2.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextArea anchorItem3 = new JTextArea("anchor 3");
-        anchorItem3.setEditable(false);
+        JLabel anchorItem3 = new JLabel("anchor 3",JLabel.CENTER);
         paramConfig.add(anchorItem3);
-        anchorItem3.setBounds(1,201,100,50);
+        anchorItem3.setFont(new   java.awt.Font("Dialog",   1,   13));
+        //anchorItem3.setBorder(BorderFactory.createRaisedBevelBorder());
+        anchorItem3.setBounds(10,201,80,30);
 
 
-        JTextField textx3 = new JTextField();//x3
+        //JTextField textx3 = new JTextField();//x3
         paramConfig.add(textx3);
-        textx3.setBounds(101,201,100,50);
+        textx3.setBounds(101,201,85,30);
         textx3.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField texty3 = new JTextField();//y3
+        //JTextField texty3 = new JTextField();//y3
         paramConfig.add(texty3);
-        texty3.setBounds(201,201,100,50);
+        texty3.setBounds(201,201,85,30);
         texty3.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField textz3= new JTextField();//z3
+        //JTextField textz3= new JTextField();//z3
         paramConfig.add(textz3);
-        textz3.setBounds(301,201,100,50);
+        textz3.setBounds(301,201,85,30);
         textz3.setHorizontalAlignment(JTextField.CENTER);
 
-        JButton title2 = new JButton("    Other Parameters");
+        JLabel title2 = new JLabel("Other Parameters",JLabel.CENTER);
         paramConfig.add(title2);
-        title2.setBounds(new Rectangle(402, 1, 297, 50));
+        title2.setBorder(BorderFactory.createRaisedBevelBorder());
+        title2.setFont(new   java.awt.Font("Dialog",   2,   19));
+        title2.setBounds(new Rectangle(402, 10, 200, 30));
 
-        JTextField textScale = new JTextField("Scale");
-        textScale.setEditable(false);
+        JLabel textScale = new JLabel("Scale :",JLabel.CENTER);
         paramConfig.add(textScale);
-        textScale.setBounds(new Rectangle(402, 51, 140, 50));
-        textScale.setHorizontalAlignment(JTextField.CENTER);
+        textScale.setFont(new   java.awt.Font("Dialog",   1,   13));
+        textScale.setBounds(new Rectangle(402, 51, 80, 30));
+        //textScale.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        JTextField textTargetHeight = new JTextField("Target Height");
-        textTargetHeight.setEditable(false);
+        JLabel textTargetHeight = new JLabel("Target Height :",JLabel.CENTER);
         paramConfig.add(textTargetHeight);
-        textTargetHeight.setBounds(new Rectangle(402, 101, 140, 50));
-        textTargetHeight.setHorizontalAlignment(JTextField.CENTER);
+        textTargetHeight.setFont(new   java.awt.Font("Dialog",   1,   13));
+        textTargetHeight.setBounds(new Rectangle(412, 101, 100, 30));
+        //textTargetHeight.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        JTextField textInterval = new JTextField("Schedule Interval");
-        textInterval.setEditable(false);
+        JLabel textInterval = new JLabel("Schedule Interval :",JLabel.CENTER);
         paramConfig.add(textInterval);
-        textInterval.setBounds(new Rectangle(402, 151, 140, 50));
+        textInterval.setFont(new   java.awt.Font("Dialog",   1,   13));
+        textInterval.setBounds(new Rectangle(402, 151, 130, 30));
         textInterval.setHorizontalAlignment(JTextField.CENTER);
+        //textInterval.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        JTextField scaleText = new JTextField();  //scale
+        //JTextField scaleText = new JTextField();  //scale
         paramConfig.add(scaleText);
-        scaleText.setBounds(542,51,157,50);
+        scaleText.setBounds(542,51,80,30);
         scaleText.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField heightText = new JTextField();  //height
+        //JTextField heightText = new JTextField();  //height
         paramConfig.add(heightText);
-        heightText.setBounds(542,101,157,50);
+        heightText.setBounds(542,101,80,30);
         heightText.setHorizontalAlignment(JTextField.CENTER);
 
-        JTextField intervalText = new JTextField();  //interval
+        //JTextField intervalText = new JTextField();  //interval
         paramConfig.add(intervalText);
-        intervalText.setBounds(542,151,157,50);
+        intervalText.setBounds(542,151,80,30);
         intervalText.setHorizontalAlignment(JTextField.CENTER);
 
 
 
         JButton config = new JButton("Config");
+        config.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ParamConfig.writeText();
+                JFrame dialogFrame = new  JFrame("提示");
+                dialogFrame.setBounds(600,400,250,150);
+                dialogFrame.setResizable(false);
+                dialogFrame.setLayout(null);
+                dialogFrame.setVisible(true);
+
+
+                JLabel tip = new JLabel("参数设置成功!");
+                tip.setBounds(52,10,90,20);
+                tip.setFont(new   java.awt.Font("Dialog",   2,   14));
+                //tip.setBorder(BorderFactory.createRaisedBevelBorder());
+                dialogFrame.add(tip);
+
+//                JPanel temp = new JPanel();
+//                temp.setBounds(250,150,100,50);
+//                dialogFrame.add(temp);
+
+                JButton ok = new JButton("OK");
+                ok.setBounds(63,40,60,20);
+                ok.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        dialogFrame.dispose();
+                    }
+                });
+                dialogFrame.add(ok);
+
+
+            }
+        });
         paramConfig.add(config);
-        config.setBounds(542,201,157,50);
+        config.setBounds(402,201,100,30);
+        config.setFont(new   java.awt.Font("Dialog",   2,   18));
+        config.setBorder(BorderFactory.createRaisedBevelBorder());
+        config.addActionListener(this);
+
+
 
         JButton load = new JButton("Load");
         paramConfig.add(load);
+        load.setBounds(522,201,100,30);
+        load.setFont(new   java.awt.Font("Dialog",   2,   18));
+        load.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        JSONObject jsonObject = new JSONObject();
-        JSONObject temp = null;
-        //temp = jsonObject.getJSONObject("anchor" );
 
-//        JTextField blank = new JTextField();//x0
-//        paramConfig.add(blank);
-//        blank.setSize(100,50);
-//        blank.setHorizontalAlignment(JTextField.CENTER);
+
+        //ParamConfig.writeText();
+
+
 
 
 
@@ -298,7 +370,6 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
             System.out.println("666");
             ButtonThread buttonThread1 = new ButtonThread(ButtonThread.launchAll);
             buttonThread1.start();
-
         }
     }
 
@@ -310,6 +381,8 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
             buttonThread2.start();
         }
     }
+
+
 
 
     public void refresh() {
@@ -343,6 +416,7 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
         float[][] allParticles = null;
 
         float maxXCoordinates = 0;
+
         float landmarks[][] = null;
         JSONUtils jsonUtils = null;
         String configFilePath = "config.txt";
@@ -382,7 +456,7 @@ public class MainFrame extends JFrame implements Runnable,ActionListener,Observe
         }
 
         public float getMaxXCoordinates() {
-
+            float maxXCoordinates = 0;
             for (int i = 0; i < landmarks.length; i++) {
                 if (landmarks[i][0] > maxXCoordinates) {
                     maxXCoordinates = landmarks[i][0];
