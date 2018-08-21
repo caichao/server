@@ -1,7 +1,7 @@
 import java.io.*;
 
 public class ParamConfig {
-    static File f = new File("e:/文本框.txt");//向指定文本框内写入
+    static File f = new File("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt");//向指定文本框内写入
 
 
 
@@ -64,7 +64,7 @@ public class ParamConfig {
 
     public static void loadText(){
         try{
-            float [][] anchorLocation = JSONUtils.loadAnchorPosition("e:/文本框1.txt");
+            float [][] anchorLocation = JSONUtils.loadAnchorPosition("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt");
             MainFrame.textx0.setText(""+anchorLocation[0][0]);
             MainFrame.texty0.setText(""+anchorLocation[0][1]);
             MainFrame.textz0.setText(""+anchorLocation[0][2]);
@@ -77,9 +77,9 @@ public class ParamConfig {
             MainFrame.textx3.setText(""+anchorLocation[3][0]);
             MainFrame.texty3.setText(""+anchorLocation[3][1]);
             MainFrame.textz3.setText(""+anchorLocation[3][2]);
-            MainFrame.scaleText.setText(""+JSONUtils.getMapGUIScaleCoefficient("e:/文本框1.txt"));
-            MainFrame.heightText.setText(""+JSONUtils.getTargetHeigh("e:/文本框1.txt"));
-            MainFrame.intervalText.setText(""+JSONUtils.getScheduleInterval("e:/文本框1.txt"));
+            MainFrame.scaleText.setText(""+JSONUtils.getMapGUIScaleCoefficient("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt"));
+            MainFrame.heightText.setText(""+JSONUtils.getTargetHeigh("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt"));
+            MainFrame.intervalText.setText(""+JSONUtils.getScheduleInterval("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt"));
         }catch (Exception e){
         }
 
