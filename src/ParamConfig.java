@@ -1,9 +1,23 @@
+import javax.swing.*;
 import java.io.*;
 
 public class ParamConfig {
-    static File f = new File("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt");//向指定文本框内写入
+    private static String filePath = "config.txt";
+    static File f = new File(filePath);//向指定文本框内写入
+/*
+    public void isFileThere(){
+        if(!f.exists()){
+            JFrame fileFrame = new JFrame("提示");
+            fileFrame.setBounds(600*MainFrame.xTrans,400*MainFrame.yTrans,250*MainFrame.xTrans,150*MainFrame.yTrans);
+            fileFrame.setResizable(false);
+            fileFrame.setLayout(null);
+            fileFrame.setVisible(true);
 
-
+            JLabel fileTip = new JLabel("当前目录下缺少config.txt文件",JLabel.CENTER);
+            fileFrame.add(fileTip);
+        }
+    }
+*/
 
 
     public static void writeText(){
@@ -64,7 +78,7 @@ public class ParamConfig {
 
     public static void loadText(){
         try{
-            float [][] anchorLocation = JSONUtils.loadAnchorPosition("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt");
+            float [][] anchorLocation = JSONUtils.loadAnchorPosition(filePath);
             MainFrame.textx0.setText(""+anchorLocation[0][0]);
             MainFrame.texty0.setText(""+anchorLocation[0][1]);
             MainFrame.textz0.setText(""+anchorLocation[0][2]);
@@ -77,9 +91,9 @@ public class ParamConfig {
             MainFrame.textx3.setText(""+anchorLocation[3][0]);
             MainFrame.texty3.setText(""+anchorLocation[3][1]);
             MainFrame.textz3.setText(""+anchorLocation[3][2]);
-            MainFrame.scaleText.setText(""+JSONUtils.getMapGUIScaleCoefficient("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt"));
-            MainFrame.heightText.setText(""+JSONUtils.getTargetHeigh("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt"));
-            MainFrame.intervalText.setText(""+JSONUtils.getScheduleInterval("C:\\Users\\caichao\\Desktop\\experiment\\particle_filter\\config.txt"));
+            MainFrame.scaleText.setText(""+JSONUtils.getMapGUIScaleCoefficient(filePath));
+            MainFrame.heightText.setText(""+JSONUtils.getTargetHeigh(filePath));
+            MainFrame.intervalText.setText(""+JSONUtils.getScheduleInterval(filePath));
         }catch (Exception e){
         }
 

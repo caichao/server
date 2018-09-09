@@ -91,9 +91,11 @@ public class ParticleFilter extends Thread implements Observer{
         intermediateWeights = new float[topParticleNumber];
         jsonUtils = new JSONUtils();
         try {
-            landmarks = jsonUtils.loadAnchorPosition(configFilePath);
-            this.z = JSONUtils.getTargetHeigh(configFilePath);
-            scheduleInterval = JSONUtils.getScheduleInterval(configFilePath);
+
+                landmarks = jsonUtils.loadAnchorPosition(configFilePath);
+                this.z = JSONUtils.getTargetHeigh(configFilePath);
+                scheduleInterval = JSONUtils.getScheduleInterval(configFilePath);
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -551,6 +553,7 @@ public class ParticleFilter extends Thread implements Observer{
         //this.estimate(topParticleNumber);
     }
 
+
     @Override
     public void run() {
         super.run();
@@ -558,8 +561,10 @@ public class ParticleFilter extends Thread implements Observer{
         CapturedBeaconMessage temp = new CapturedBeaconMessage();
         TDOACalUtil tdoaCalUtil = new TDOACalUtil();
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");//设置日期格式
-        String logFileName = "debug/localization_" + df.format(new Date()) + ".txt";
+        //SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");//设置日期格式
+        SimpleDateFormat df = new SimpleDateFormat("MM_dd_HH_mm");//设置日期格式
+        String logFileName = "results/localization_" + df.format(new Date()) + ".txt";
+        //String logFileName = "results/localization_" + MainFrame.count + ".txt";
 //        TDOAMeasurement[] tdoaMeasurements = new TDOAMeasurement[2];
 //        int captureCount = 0;
         int currentScheduleSequence = 0;
@@ -607,6 +612,7 @@ public class ParticleFilter extends Thread implements Observer{
                         if(tdoaCalUtil.checkTimestamps(temp.selfAnchorId)){
                             locationEstimationRoutineWithMultipleTdoa(tdoaCalUtil.getTimestampsList());
                             FileUtils.saveLocalizationResults(getX(), getY(), getZ(),logFileName);
+                            MainFrame.count++;
                         }
                         //if(temp.speed >= 10){
                         predict(temp.speed / 100.0f, temp.capturedAnchorId);

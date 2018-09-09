@@ -245,4 +245,31 @@ public class FileUtils {
             }
         }
     }
+
+
+    /*
+    * 该方法用于查找results目录下最新生成的那个位置文件
+    * */
+    public static String getLatestFile(String path){
+        // get file list where the path has
+        File file = new File(path);
+        // get the folder list
+        File[] array = file.listFiles();
+        String latestFile = null;
+        for(int i=0;i<array.length-1;i++){
+            if(array[i].isFile()){
+                int temp = array[i+1].getName().compareTo(array[i].getName());
+                if(temp>0){
+                    latestFile=array[i+1].getName();
+                }
+            }else if(array[i].isDirectory()){
+                getLatestFile(array[i].getPath());
+            }
+        }
+        return latestFile;
+
+
+    }
+
+
 }

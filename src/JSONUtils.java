@@ -1,4 +1,4 @@
-import jdk.nashorn.internal.parser.JSONParser;
+//import jdk.nashorn.internal.parser.JSONParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -74,6 +74,7 @@ public class JSONUtils {
         return role;
     }
 
+
     public static float[][] loadAnchorPosition(String fileName) throws Exception{
 
         float[][] anchorPositions = new float[4][3];
@@ -88,6 +89,28 @@ public class JSONUtils {
         }
         return anchorPositions;
     }
+
+
+    /*
+     * 获取目标位置信息
+     * */
+    public static float[][] loadTargetPosition(String fileName) throws Exception{
+
+        float[][] anchorPositions = new float[3][30];
+        String content = new Scanner(new File(fileName)).useDelimiter("\\Z").next();
+        JSONObject jsonObject = new JSONObject(content);
+        JSONObject tmp = null;
+        for(int i = 0; i < 2; i++){
+            tmp = jsonObject.getJSONObject(""+i);
+            anchorPositions[0][i] = (float) tmp.getDouble("x");
+            anchorPositions[1][i] = (float) tmp.getDouble("y");
+            //anchorPositions[i][2] = (float) tmp.getDouble("z");
+        }
+        return anchorPositions;
+    }
+
+
+
 
     public static float getMapGUIScaleCoefficient(String fileName) throws Exception{
         return getFixParameters(fileName, scaleStr);

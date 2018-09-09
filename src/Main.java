@@ -10,12 +10,13 @@ public class Main {
         ParticleFilter particleFilter = new ParticleFilter(5000);
         new Thread(particleFilter).start();
 
+
         try
         {
 
-            org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
-            BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.osLookAndFeelDecorated;
-           UIManager.put("RootPane.setupButtonVisible", false);
+//            org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
+//            BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.osLookAndFeelDecorated;
+//           UIManager.put("RootPane.setupButtonVisible", false);
 
         }
         catch(Exception e)
@@ -27,7 +28,6 @@ public class Main {
         new Thread(mainFrame).start();
 
         particleFilter.setMainFrame(mainFrame);
-
         particleFilter.generateUniformParticles();
         /*System.out.println("This is a java test!");
 
