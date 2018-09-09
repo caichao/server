@@ -612,7 +612,6 @@ public class ParticleFilter extends Thread implements Observer{
                         if(tdoaCalUtil.checkTimestamps(temp.selfAnchorId)){
                             locationEstimationRoutineWithMultipleTdoa(tdoaCalUtil.getTimestampsList());
                             FileUtils.saveLocalizationResults(getX(), getY(), getZ(),logFileName);
-                            MainFrame.count++;
                         }
                         //if(temp.speed >= 10){
                         predict(temp.speed / 100.0f, temp.capturedAnchorId);

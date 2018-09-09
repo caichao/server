@@ -18,7 +18,7 @@ public class ButtonThread extends Thread {
     private String command = null;
 
     public static final String launchAll = "tmux new -s main -d \"sudo ./main\"";
-    public static final String killAll = "tmux kill-session -t main 2> /dev/null";
+    public static final String killAll = "sudo pkill main";
 
     public ButtonThread(String c){
         this.command = c;
@@ -45,12 +45,4 @@ public class ButtonThread extends Thread {
         }
     }
 
-
-    /*
-    private void close(){
-        synchronized (this){
-            isScheduleLive = false;
-        }
-    }
-    */
 }
