@@ -10,7 +10,7 @@ public class Main {
         ParticleFilter particleFilter = new ParticleFilter(5000);
         new Thread(particleFilter).start();
 
-
+        //System.out.println("localization_2018-07-19_18_28_04".compareTo("localization_2018-08-_18_28_04"));
         try
         {
 

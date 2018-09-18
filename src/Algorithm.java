@@ -62,7 +62,7 @@ public class Algorithm {
      * @param m
      * @return
      */
-    public static float guassian(float m, float mu, float sigma){
+    public static float guassian(float m, float mu, float sigma){   //calculate weights of the particle
         float r = (float) Math.exp(pow((m - mu)/sigma, 2) / (-2));
         r = (float) (1.0f / Math.sqrt(2 * Math.PI) / sigma * r);
         return r;
@@ -74,7 +74,7 @@ public class Algorithm {
      * @param y: point two in 3D, coordinates for anchors
      * @return distance in float format
      */
-    public static float euclidianDistance(float x[], float y[]){
+    public static float euclidianDistance(float x[], float y[]){        //欧几里得距离
         return (float) Math.sqrt(Math.pow(x[0] - y[0], 2) + Math.pow(x[1] - y[1], 2)); //  + Math.pow(this.z - y[2], 2));
     }
 

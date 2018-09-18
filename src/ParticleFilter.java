@@ -217,8 +217,8 @@ public class ParticleFilter extends Thread implements Observer{
             for(int j = 0; j < numberOfParticles; j++){
                 d1 = Algorithm.euclidianDistance(particles[j], landmarks[tdoaMeasurement.get(i).anchorIDOne]);
                 d2 = Algorithm.euclidianDistance(particles[j], landmarks[tdoaMeasurement.get(i).anchorIDTwo]);
-                error = (float)Math.abs((d1 - d2) + this.c * tdoaMeasurement.get(i).tdoa);
-                weights[j] *= Algorithm.guassian((float) pow(error, 2),mu, sigma);
+                error = (float)Math.abs((d1 - d2) + this.c * tdoaMeasurement.get(i).tdoa);   //(13)
+                weights[j] *= Algorithm.guassian((float) pow(error, 2),mu, sigma);   //weights of the ith particle  式(14)
             }
         }
 
@@ -228,7 +228,7 @@ public class ParticleFilter extends Thread implements Observer{
 //        }
         // avoid round-off error
         for(int i = 0; i < numberOfParticles ; i++){
-            weights[i] += 1e-30;
+            weights[i] += 1e-30;    // ξ***
         }
         // normalize the weights
         float sum = 0;

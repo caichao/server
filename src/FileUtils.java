@@ -255,20 +255,24 @@ public class FileUtils {
         File file = new File(path);
         // get the folder list
         File[] array = file.listFiles();
-        String latestFile = null;
+        String latestFile;
+        String maxFile;
+        maxFile = array[0].getName();
+        int temp;
         for(int i=0;i<array.length-1;i++){
             if(array[i].isFile()){
-                int temp = array[i+1].getName().compareTo(array[i].getName());
-                if(temp>0){
-                    latestFile=array[i+1].getName();
-                }
-            }else if(array[i].isDirectory()){
-                getLatestFile(array[i].getPath());
+                     temp = array[i + 1].getName().compareTo(maxFile);
+                    if (temp > 0) {
+                        maxFile = array[i + 1].getName();
+                    }
             }
+
+//            else if(array[i].isDirectory()){
+//                continue;
+//            }
         }
+        latestFile = maxFile;
         return latestFile;
-
-
     }
 
 
