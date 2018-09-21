@@ -62,14 +62,14 @@ public class TDOACalUtil {
         // first determine whether there are associated list created
         synchronized (this) {
             if (list != null) {
-                if (list.size() >= 4 * 2) {
+                if (list.size() >= 4 * 2) {    //list里存放的是CapturedBeaconMessage里的七个信息
                     list.remove(0);
                 }
                 list.add(newCapturedBeaconMessage);
             } else {
                 List<CapturedBeaconMessage> capturedBeaconMessageList = new ArrayList<CapturedBeaconMessage>();
                 capturedBeaconMessageList.add(newCapturedBeaconMessage);
-                beaconMessageMap.put(newCapturedBeaconMessage.selfAnchorId, capturedBeaconMessageList);
+                beaconMessageMap.put(newCapturedBeaconMessage.selfAnchorId, capturedBeaconMessageList);//若没有List则创建List并与Anchor关联起来
             }
         }
     }

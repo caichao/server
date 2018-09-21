@@ -3,6 +3,12 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
+
+/*
+* 这个类没有被用到
+* */
+
+
 public class BioClient {
 
     private String ip;

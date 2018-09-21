@@ -9,7 +9,7 @@ public class BioWorker implements Runnable{
     private Socket client = null;
     private List queue = null;
     private boolean isThreadAlive = true;
-    public BioWorker(Socket client, List queue){
+    public BioWorker(Socket client, List queue){   //这里的queue是之前的 message queue
         this.client = client;
         this.queue = queue;
     }
@@ -29,7 +29,7 @@ public class BioWorker implements Runnable{
             while (isThreadAlive){
                 resetBuf(msg);
                 int num = buf.read(msg);
-                if(num == -1) { // this is a must to handle the cases, if not, the size of queue will explode
+                if(num == -1) { // this is a Must to handle the cases, if not, the size of queue will explode
                     isThreadAlive = false;
                     break;
                 }

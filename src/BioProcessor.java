@@ -3,14 +3,24 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/*
+* 这个类继承了Subjecr接口，包含notifyObservers等方法的实现，用于获取数据
+*
+* 既有update, 又有run()
+* */
+
+
+
+
 public class BioProcessor implements Runnable, Subject {
 
     private List queue = null;
     private String msg = null;
 
-    public BioProcessor(List queue){
-        this.queue = queue;
-    }
+//    public BioProcessor(List queue){
+//        this.queue = queue;
+//    }
 
     public BioProcessor(List queue, Observer observer){
         this.queue = queue;
@@ -50,6 +60,9 @@ public class BioProcessor implements Runnable, Subject {
         }
     }
 
+
+
+
     /**********************************************************/
     // notify the message to the observer using observer-subject pattern
     private List<Observer> observerList = new ArrayList<>();
@@ -74,6 +87,7 @@ public class BioProcessor implements Runnable, Subject {
             observer.update(notifyMessage);
         }
     }
+
 
     public void setNotificationMessage(String msg){
         this.notifyMessage = msg;

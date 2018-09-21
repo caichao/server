@@ -305,7 +305,7 @@ public class ParticleFilter extends Thread implements Observer{
         int shift = indexes.length;
         for(int i = 0; i < indexes.length; i++){
             // the number of newly generated particles are also based on their weights
-            int num = (int) Math.floor(weights[i] * numberOfParticles);
+            int num = (int) Math.floor(weights[i] * numberOfParticles); //返回最大的Double值
 
             for(int j = 0; j < num ; j++){
                 particles[(shift + availableNumberOfParticles) % this.numberOfParticles][0] =  (2 * random.nextFloat() - 1 ) * scale + particles[i][0];
@@ -582,7 +582,7 @@ public class ParticleFilter extends Thread implements Observer{
                     }
 
                     temp = jsonUtils.decodeCapturedBeaconMessage(message);
-                    currentScheduleSequence = ScheduleAnchorThread.getScheduleRound();
+                    currentScheduleSequence = ScheduleAnchorThread.getScheduleRound();  //获取当前轮数
                     if(temp.capturedSequence == currentScheduleSequence % 4){
                         temp.capturedSequence = currentScheduleSequence; // change the schedule sequence to avoid consistency collision
                     }else if(temp.capturedSequence == 3 && (currentScheduleSequence - 1)%4 == temp.capturedSequence){
@@ -635,9 +635,15 @@ public class ParticleFilter extends Thread implements Observer{
         }
     }
 
+
+
     List messageQueue = new ArrayList();
+
+
+
+
     @Override
-    public void update(String msg){
+    public void update(String msg){        //这个update是观察者模式的
 
         synchronized (this){
             messageQueue.add(msg);
@@ -650,6 +656,5 @@ public class ParticleFilter extends Thread implements Observer{
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 }

@@ -53,6 +53,11 @@ public class JSONUtils {
         return messageFromClient;
     }
 
+
+    /*
+    * 将字符串转换成数值
+    * */
+
     public CapturedBeaconMessage decodeCapturedBeaconMessage(String message) throws Exception{
         CapturedBeaconMessage capturedBeaconMessage = new CapturedBeaconMessage();
         JSONObject jsonObject = new JSONObject(message);

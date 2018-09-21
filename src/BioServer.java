@@ -12,7 +12,7 @@ public class BioServer implements Runnable{
     private List messageQueue = null;
     private Observer observer = null;
 
-    private BioProcessor bioProcessor = null;
+    //private BioProcessor bioProcessor = null;
 
     public BioServer(int port){
         this.port = port;
@@ -31,6 +31,9 @@ public class BioServer implements Runnable{
     public void setObserver(Observer observer){
         this.observer = observer;
     }
+
+
+
     @Override
     public void run() {
         try {

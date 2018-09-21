@@ -139,6 +139,10 @@ public class Main {
         scheduleAnchorThread.start();
         log("Sechdule thread is started");
 
+        /*
+        * 启动服务器
+        * */
+
         BioServer bioServer = new BioServer(33333, particleFilter);
         new Thread(bioServer).start();
         log("server started succussfully");

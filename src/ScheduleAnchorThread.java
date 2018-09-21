@@ -51,6 +51,10 @@ public class ScheduleAnchorThread extends Thread {
 
                     //Collections.shuffle(scheduleTurns);
 
+                    /*
+                    * setData()用来设置数据包的规格
+                    * */
+
                     packet.setData(schedualAnchor(scheduleTurns.get(0), sequence % 4).getBytes());
                     serverSocket.send(packet);
                     Thread.sleep(schedualInterval);
